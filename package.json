@@ -3,5 +3,8 @@
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
-  "author": ""
+  "author": "",
+  "dependencies": {
+    "raf": "^2.0.4"
+  }
 }
