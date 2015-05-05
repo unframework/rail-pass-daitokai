@@ -5,6 +5,7 @@
   "main": "index.js",
   "author": "",
   "dependencies": {
+    "gl-matrix": "^2.1.0",
     "raf": "^2.0.4"
   }
 }
