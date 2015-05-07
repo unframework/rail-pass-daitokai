@@ -3,19 +3,31 @@ vec2 = require('gl-matrix').vec2;
 
 TIME_STEP = 0.016666
 
+map = [
+    'x  '
+    'xxx'
+]
+
 module.exports = class PhysicsWorld
     constructor: (@_input) ->
+        # sample cell map
+        c00 = { origin: vec2.fromValues 0, 0 }
+        c10 = { origin: vec2.fromValues 1, 0 }
+        c20 = { origin: vec2.fromValues 2, 0 }
+        c01 = { origin: vec2.fromValues 0, 1 }
+
+        c00._up = c01
+        c00._right = c10
+        c10._left = c00
+        c10._right = c20
+        c20._left = c10
+        c01._down = c00
+
         @_timeAccumulator = 0
         @_movables = []
 
-        @_createMovable()
-        @_createMovable()
-
-        vec2.set @_movables[0].position, 2, 1
-        vec2.set @_movables[0]._nposition, 2, 1
-
-        vec2.set @_movables[1].position, -1, 1.5
-        vec2.set @_movables[1]._nposition, -1 + 0.001, 1.5
+        @_createMovable(c00)
+        @_createMovable(c20)
 
     update: (elapsed) ->
         @_timeAccumulator = Math.max(0.2, @_timeAccumulator + elapsed)
@@ -34,18 +46,30 @@ module.exports = class PhysicsWorld
 
             @_performTimeStep()
 
-    _createMovable: () ->
+    _createMovable: (cell) ->
         @_movables.push {
-            position: vec2.create()
-            _nposition: vec2.create()
+            position: vec2.fromValues cell.origin[0] + 0.5, cell.origin[1] + 0.5
+            _nposition: vec2.fromValues cell.origin[0] + 0.5, cell.origin[1] + 0.5
             _tv: vec2.create()
+            _cell: cell
         }
+
+    _updateMovableCell: (m) ->
+        if m._nposition[0] > (m._cell.origin[0] + 0.5) + 1
+            if m._cell._right then m._cell = m._cell._right; if m is @_movables[0] then console.log 'right to', m._cell
+        else if m._nposition[0] < (m._cell.origin[0] + 0.5)
+            if m._cell._left then m._cell = m._cell._left; if m is @_movables[0] then console.log 'left to', m._cell
+
+        if m._nposition[1] > (m._cell.origin[1] + 0.5) + 1
+            if m._cell._up then m._cell = m._cell._up; if m is @_movables[0] then console.log 'up to', m._cell
+        else if m._nposition[1] < (m._cell.origin[1] + 0.5)
+            if m._cell._down then m._cell = m._cell._down; if m is @_movables[0] then console.log 'down to', m._cell
 
     _performTimeStep: ->
         nd = vec2.create()
         halfNudge = vec2.create()
 
-        restoreDistance = (a, b) ->
+        restoreDistance = (a, b) =>
             vec2.subtract nd, b._nposition, a._nposition
             d2 = vec2.squaredLength nd
 
@@ -58,9 +82,14 @@ module.exports = class PhysicsWorld
                 vec2.add a._nposition, a._nposition, halfNudge
                 vec2.subtract b._nposition, b._nposition, halfNudge
 
+                @_updateMovableCell a
+                @_updateMovableCell b
+
         for m in @_movables
             # Verlet inertia
             vec2.add m._nposition, m._nposition, m._tv
+            @_updateMovableCell m
+
 
         for a in @_movables
             for b in @_movables

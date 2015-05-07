@@ -1,5 +1,6 @@
 
 vec3 = require('gl-matrix').vec3
+vec4 = require('gl-matrix').vec4
 mat4 = require('gl-matrix').mat4
 
 createCanvas = ->
@@ -25,7 +26,7 @@ module.exports = class View
         # console.log(@_gl.getShaderInfoLog(vertexShader))
 
         fragmentShader = @_gl.createShader(@_gl.FRAGMENT_SHADER)
-        @_gl.shaderSource fragmentShader, 'void main() { gl_FragColor = vec4(0, 0, 0, 1); }'
+        @_gl.shaderSource fragmentShader, 'uniform mediump vec4 color; void main() { gl_FragColor = color; }'
         @_gl.compileShader fragmentShader
         # console.log(@_gl.getShaderInfoLog(fragmentShader))
 
@@ -41,6 +42,7 @@ module.exports = class View
         @_modelLocation = @_gl.getUniformLocation(program, 'model')
         @_cameraLocation = @_gl.getUniformLocation(program, 'camera')
         @_positionLocation = @_gl.getAttribLocation(program, 'position')
+        @_colorLocation = @_gl.getUniformLocation(program, 'color')
 
         buffer = @_gl.createBuffer()
         @_gl.bindBuffer @_gl.ARRAY_BUFFER, buffer
@@ -67,12 +69,25 @@ module.exports = class View
         modelPosition = vec3.create()
         model = mat4.create()
 
+        blackColor = vec4.fromValues(0, 0, 0, 1)
+        grayColor = vec4.fromValues(0.5, 0.5, 0.5, 1)
+
         for m in @_world._movables
+            vec3.set(modelPosition, m._cell.origin[0] + 0.5, m._cell.origin[1] + 0.5, 0)
+
+            mat4.identity(model)
+            mat4.translate(model, model, modelPosition)
+
+            @_gl.uniform4fv @_colorLocation, grayColor
+            @_gl.uniformMatrix4fv @_modelLocation, false, model
+            @_gl.drawArrays @_gl.TRIANGLES, 0, 6
+
             vec3.set(modelPosition, m.position[0], m.position[1], 0)
 
             mat4.identity(model)
             mat4.translate(model, model, modelPosition)
 
+            @_gl.uniform4fv @_colorLocation, blackColor
             @_gl.uniformMatrix4fv @_modelLocation, false, model
             @_gl.drawArrays @_gl.TRIANGLES, 0, 6
 
