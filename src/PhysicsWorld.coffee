@@ -23,6 +23,15 @@ module.exports = class PhysicsWorld
         while @_timeAccumulator > 0
             @_timeAccumulator -= TIME_STEP
 
+            if @_input.status.LEFT
+                @_movables[0]._nposition[0] -= 0.1 * TIME_STEP * TIME_STEP
+            if @_input.status.RIGHT
+                @_movables[0]._nposition[0] += 0.1 * TIME_STEP * TIME_STEP
+            if @_input.status.UP
+                @_movables[0]._nposition[1] += 0.1 * TIME_STEP * TIME_STEP
+            if @_input.status.DOWN
+                @_movables[0]._nposition[1] -= 0.1 * TIME_STEP * TIME_STEP
+
             @_performTimeStep()
 
     _createMovable: () ->
@@ -63,6 +72,13 @@ module.exports = class PhysicsWorld
         for m in @_movables
             # save speed delta
             vec2.subtract m._tv, m._nposition, m.position
+
+            # apply friction
+            ntv = vec2.length m._tv
+
+            if ntv > 0
+                subtract = Math.min(ntv, 0.01 * TIME_STEP * TIME_STEP);
+                vec2.scale m._tv, m._tv, 1 - subtract / ntv
 
             # update position
             vec2.copy m.position, m._nposition

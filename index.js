@@ -5,8 +5,10 @@ var View = require('./src/View.coffee');
 var Input = require('./src/Input')
 
 var input = new Input({
-    38: 'FORWARD',
-    40: 'BACKWARD'
+    37: 'LEFT',
+    38: 'UP',
+    39: 'RIGHT',
+    40: 'DOWN'
 });
 
 var world = new PhysicsWorld(input);
