@@ -6,18 +6,10 @@ TIME_STEP = 0.016666
 module.exports = class PhysicsWorld
     constructor: (@_input) ->
         @_timeAccumulator = 0
-        @_movables = [
-            {
-                position: vec2.create()
-                _nposition: vec2.create()
-                _tv: vec2.create()
-            }
-            {
-                position: vec2.create()
-                _nposition: vec2.create()
-                _tv: vec2.create()
-            }
-        ]
+        @_movables = []
+
+        @_createMovable()
+        @_createMovable()
 
         vec2.set @_movables[0].position, 2, 1
         vec2.set @_movables[0]._nposition, 2, 1
@@ -32,6 +24,13 @@ module.exports = class PhysicsWorld
             @_timeAccumulator -= TIME_STEP
 
             @_performTimeStep()
+
+    _createMovable: () ->
+        @_movables.push {
+            position: vec2.create()
+            _nposition: vec2.create()
+            _tv: vec2.create()
+        }
 
     _performTimeStep: ->
         nd = vec2.create()
