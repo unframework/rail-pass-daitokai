@@ -68,7 +68,7 @@ module.exports = class View
         model = mat4.create()
 
         for m in @_world._movables
-            vec3.set(modelPosition, m.position[0], m.position[1], 0)
+            vec3.set(modelPosition, m.position[0] + (if @_world._input.status.FORWARD then 1 else 0), m.position[1], 0)
 
             mat4.identity(model)
             mat4.translate(model, model, modelPosition)

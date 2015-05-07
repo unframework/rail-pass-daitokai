@@ -4,7 +4,7 @@ vec2 = require('gl-matrix').vec2;
 TIME_STEP = 0.016666
 
 module.exports = class PhysicsWorld
-    constructor: () ->
+    constructor: (@_input) ->
         @_timeAccumulator = 0
         @_movables = [
             { position: vec2.create() }

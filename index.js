@@ -5,12 +5,11 @@ var View = require('./src/View.coffee');
 var Input = require('./src/Input')
 
 var input = new Input({
-    32: 'BRAKE',
     38: 'FORWARD',
     40: 'BACKWARD'
 });
 
-var world = new PhysicsWorld();
+var world = new PhysicsWorld(input);
 var view = new View(world);
 
 requestAnimationFrame(function (time) {
