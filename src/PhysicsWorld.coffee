@@ -105,6 +105,76 @@ module.exports = class PhysicsWorld
                 @_updateMovableCell a
                 @_updateMovableCell b
 
+        collideWithCells = (m) ->
+            if m._cellLeft
+                if m._nposition[0] < m._cell.center[0]
+                    m._nposition[0] = m._cell.center[0]
+                    m._cellLeft = false # out of that quadrant now
+
+            if m._cellDown
+                if m._nposition[1] < m._cell.center[1]
+                    m._nposition[1] = m._cell.center[1]
+                    m._cellDown = false # out of that quadrant now
+
+            if m._nposition[0] < m._cell.origin[0] + 1
+                if m._nposition[1] < m._cell.origin[1] + 1
+                    # closest quadrant
+                    if !m._cell._right
+                        m._nposition[0] = m._cell.center[0]
+
+                    if !m._cell._up
+                        m._nposition[1] = m._cell.center[1]
+
+                    if m._cell._right and m._cell._up
+                        if !m._cell._right._up or !m._cell._up._right
+                            vec2.copy nd, m._cell._up.origin
+                            nd[0] += 1
+
+                            vec2.subtract nd, m._nposition, nd
+                            if vec2.squaredLength(nd) < 0.5 * 0.5 # @todo check for zero distance
+                                dist = vec2.length(nd)
+                                vec2.scale nd, nd, (0.5 - dist) / dist
+                                vec2.add m._nposition, m._nposition, nd
+
+                else
+                    # left top quadrant
+                    if !m._cell._up
+                        m._nposition[1] = m._cell.center[1]
+                    else if !m._cell._up._right
+                        m._nposition[0] = m._cell.center[0]
+                    else if !m._cell._right
+                        # do the corner thing @todo
+                        m._nposition = m._nposition
+            else
+                if m._nposition[1] < m._cell.origin[1] + 1
+                    # right bottom quadrant
+                    if !m._cell._right
+                        m._nposition[0] = m._cell.center[0]
+                    else if !m._cell._right._up
+                        m._nposition[1] = m._cell.center[1]
+                    else if !m._cell._up
+                        # do the corner thing @todo
+                        m._nposition = m._nposition
+
+                else
+                    # far quadrant
+                    if !m._cell._right
+                        m._nposition[0] = m._cell.center[0]
+
+                    if !m._cell._up
+                        m._nposition[1] = m._cell.center[1]
+
+                    if m._cell._right and m._cell._up
+                        # check if closer to left edge or bottom edge
+                        if m._nposition[0] - m._cell.origin[0] + 1 < m._nposition[1] - m._cell.origin[1] + 1
+                            # closer to left edge
+                            if !m._cell._up._right
+                                m._nposition[0] = m._cell.center[0]
+                        else
+                            # closer to bottom edge
+                            if !m._cell._right._up
+                                m._nposition[1] = m._cell.center[1]
+
         for m in @_movables
             # Verlet inertia
             vec2.add m._nposition, m._nposition, m._tv
@@ -119,6 +189,9 @@ module.exports = class PhysicsWorld
                 restoreDistance a, b
 
         for m in @_movables
+            # enforce being in-bounds
+            collideWithCells m
+
             # save speed delta
             vec2.subtract m._tv, m._nposition, m.position
 
