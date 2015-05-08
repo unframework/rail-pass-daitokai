@@ -108,6 +108,14 @@ module.exports = class PhysicsWorld
                 @_updateMovableCell a
                 @_updateMovableCell b
 
+        ensureDistanceFrom = (m, x, y) ->
+            vec2.set nd, x, y
+            vec2.subtract nd, m._nposition, nd
+            if vec2.squaredLength(nd) < 0.5 * 0.5 # @todo check for zero distance
+                dist = vec2.length(nd)
+                vec2.scale nd, nd, (0.5 - dist) / dist
+                vec2.add m._nposition, m._nposition, nd
+
         collideWithCells = (m) ->
             if m._cellLeft
                 if m._nposition[0] < m._cell.center[0]
@@ -130,14 +138,7 @@ module.exports = class PhysicsWorld
 
                     if m._cell._right and m._cell._up
                         if !m._cell._right._up or !m._cell._up._right
-                            vec2.copy nd, m._cell._up.origin
-                            nd[0] += 1
-
-                            vec2.subtract nd, m._nposition, nd
-                            if vec2.squaredLength(nd) < 0.5 * 0.5 # @todo check for zero distance
-                                dist = vec2.length(nd)
-                                vec2.scale nd, nd, (0.5 - dist) / dist
-                                vec2.add m._nposition, m._nposition, nd
+                            ensureDistanceFrom m, m._cell.origin[0] + 1, m._cell.origin[1] + 1
 
                 else
                     # left top quadrant
