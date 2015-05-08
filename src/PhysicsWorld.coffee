@@ -115,6 +115,55 @@ module.exports = class PhysicsWorld
                 vec2.add m._nposition, m._nposition, nd
 
         collideWithCells = (m) ->
+            dx = m._nposition[0] - m._cell.center[0]
+            dy = m._nposition[1] - m._cell.center[1]
+
+            if dx < 0
+                if dy < 0
+                    # left bottom corner
+                    if !m._cell._left
+                        m._nposition[0] = m._cell.center[0]
+
+                    if !m._cell._down
+                        m._nposition[1] = m._cell.center[1]
+
+                    if m._cell._left and m._cell._down and !m._cell._left._down
+                        # @todo deal with overlapping cell graph
+                        ensureDistanceFrom m, m._cell.origin[0], m._cell.origin[1]
+                else
+                    # left top corner
+                    if !m._cell._left
+                        m._nposition[0] = m._cell.center[0]
+
+                    if !m._cell._up
+                        m._nposition[1] = m._cell.center[1]
+
+                    if m._cell._left and m._cell._up and !m._cell._left._up
+                        # @todo deal with overlapping cell graph
+                        ensureDistanceFrom m, m._cell.origin[0], m._cell.origin[1] + 1
+            else
+                if dy < 0
+                    # right bottom corner
+                    if !m._cell._right
+                        m._nposition[0] = m._cell.center[0]
+
+                    if !m._cell._down
+                        m._nposition[1] = m._cell.center[1]
+
+                    if m._cell._right and m._cell._down and !m._cell._right._down
+                        # @todo deal with overlapping cell graph
+                        ensureDistanceFrom m, m._cell.origin[0] + 1, m._cell.origin[1]
+                else
+                    # right top corner
+                    if !m._cell._right
+                        m._nposition[0] = m._cell.center[0]
+
+                    if !m._cell._up
+                        m._nposition[1] = m._cell.center[1]
+
+                    if m._cell._right and m._cell._up and !m._cell._right._up
+                        # @todo deal with overlapping cell graph
+                        ensureDistanceFrom m, m._cell.origin[0] + 1, m._cell.origin[1] + 1
 
         for m in @_movables
             # Verlet inertia
