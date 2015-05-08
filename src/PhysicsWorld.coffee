@@ -157,27 +157,30 @@ module.exports = class PhysicsWorld
                     else if !m._cell._right._up
                         m._nposition[1] = m._cell.center[1]
                     else if !m._cell._up
-                        # do the corner thing @todo
+                        # do the corner thing
                         ensureDistanceFrom m, m._cell.origin[0] + 1, m._cell.origin[1] + 1
 
                 else
                     # far quadrant
-                    if !m._cell._right
+                    if m._cell._up
+                        if !m._cell._up._right
+                            # must move out of the quadrant
+                            m._nposition[0] = m._cell.center[0]
+                        else if !m._cell._right
+                            # can stay in the quadrant
+                            m._nposition[1] = m._cell.center[1] + 1
+
+                    if m._cell._right
+                        if !m._cell._right._up
+                            # must move out of the quadrant
+                            m._nposition[1] = m._cell.center[1]
+                        else if !m._cell._up
+                            # can stay in the quadrant
+                            m._nposition[0] = m._cell.center[0] + 1
+
+                    if !m._cell._up and !m._cell._right
                         m._nposition[0] = m._cell.center[0]
-
-                    if !m._cell._up
                         m._nposition[1] = m._cell.center[1]
-
-                    if m._cell._right and m._cell._up
-                        # check if closer to left edge or bottom edge
-                        if m._nposition[0] - m._cell.origin[0] + 1 < m._nposition[1] - m._cell.origin[1] + 1
-                            # closer to left edge
-                            if !m._cell._up._right
-                                m._nposition[0] = m._cell.center[0]
-                        else
-                            # closer to bottom edge
-                            if !m._cell._right._up
-                                m._nposition[1] = m._cell.center[1]
 
         for m in @_movables
             # Verlet inertia
