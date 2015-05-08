@@ -15,19 +15,22 @@ module.exports = class PhysicsWorld
         c10 = { origin: vec2.fromValues(1, 0), center: vec2.fromValues(1.5, 0.5) }
         c20 = { origin: vec2.fromValues(2, 0), center: vec2.fromValues(2.5, 0.5) }
         c01 = { origin: vec2.fromValues(0, 1), center: vec2.fromValues(0.5, 1.5) }
+        c21 = { origin: vec2.fromValues(2, 1), center: vec2.fromValues(2.5, 1.5) }
 
         c00._up = c01
         c00._right = c10
         c10._left = c00
         c10._right = c20
         c20._left = c10
+        c20._up = c21
         c01._down = c00
+        c21._down = c20
 
         @_timeAccumulator = 0
         @_movables = []
 
         @_createMovable(c00)
-        @_createMovable(c20)
+        @_createMovable(c01)
 
     update: (elapsed) ->
         @_timeAccumulator = Math.max(0.2, @_timeAccumulator + elapsed)
