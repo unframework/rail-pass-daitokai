@@ -52,18 +52,38 @@ module.exports = class PhysicsWorld
             _nposition: vec2.fromValues cell.origin[0] + 0.5, cell.origin[1] + 0.5
             _tv: vec2.create()
             _cell: cell
+            _cellLeft: false
+            _cellDown: false
         }
 
     _updateMovableCell: (m) ->
         if m._nposition[0] > (m._cell.origin[0] + 0.5) + 1
-            if m._cell._right then m._cell = m._cell._right; if m is @_movables[0] then console.log 'right to', m._cell
+            if m._cell._right
+                m._cell = m._cell._right
+
+            m._cellLeft = false
         else if m._nposition[0] < (m._cell.origin[0] + 0.5)
-            if m._cell._left then m._cell = m._cell._left; if m is @_movables[0] then console.log 'left to', m._cell
+            if m._cell._left
+                m._cell = m._cell._left
+                m._cellLeft = false
+            else
+                m._cellLeft = true
+        else
+            m._cellLeft = false
 
         if m._nposition[1] > (m._cell.origin[1] + 0.5) + 1
-            if m._cell._up then m._cell = m._cell._up; if m is @_movables[0] then console.log 'up to', m._cell
+            if m._cell._up
+                m._cell = m._cell._up
+
+            m._cellDown = false
         else if m._nposition[1] < (m._cell.origin[1] + 0.5)
-            if m._cell._down then m._cell = m._cell._down; if m is @_movables[0] then console.log 'down to', m._cell
+            if m._cell._down
+                m._cell = m._cell._down
+                m._cellDown = false
+            else
+                m._cellDown = true
+        else
+            m._cellDown = false
 
     _performTimeStep: ->
         nd = vec2.create()
