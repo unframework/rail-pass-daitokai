@@ -11,10 +11,10 @@ map = [
 module.exports = class PhysicsWorld
     constructor: (@_input) ->
         # sample cell map
-        c00 = { origin: vec2.fromValues 0, 0 }
-        c10 = { origin: vec2.fromValues 1, 0 }
-        c20 = { origin: vec2.fromValues 2, 0 }
-        c01 = { origin: vec2.fromValues 0, 1 }
+        c00 = { origin: vec2.fromValues(0, 0), center: vec2.fromValues(0.5, 0.5) }
+        c10 = { origin: vec2.fromValues(1, 0), center: vec2.fromValues(1.5, 0.5) }
+        c20 = { origin: vec2.fromValues(2, 0), center: vec2.fromValues(2.5, 0.5) }
+        c01 = { origin: vec2.fromValues(0, 1), center: vec2.fromValues(0.5, 1.5) }
 
         c00._up = c01
         c00._right = c10
@@ -48,8 +48,8 @@ module.exports = class PhysicsWorld
 
     _createMovable: (cell) ->
         @_movables.push {
-            position: vec2.fromValues cell.origin[0] + 0.5, cell.origin[1] + 0.5
-            _nposition: vec2.fromValues cell.origin[0] + 0.5, cell.origin[1] + 0.5
+            position: vec2.fromValues cell.center[0], cell.center[1]
+            _nposition: vec2.fromValues cell.center[0], cell.center[1]
             _tv: vec2.create()
             _cell: cell
             _cellLeft: false
@@ -57,12 +57,12 @@ module.exports = class PhysicsWorld
         }
 
     _updateMovableCell: (m) ->
-        if m._nposition[0] > (m._cell.origin[0] + 0.5) + 1
+        if m._nposition[0] >= m._cell.center[0] + 1
             if m._cell._right
                 m._cell = m._cell._right
 
             m._cellLeft = false
-        else if m._nposition[0] < (m._cell.origin[0] + 0.5)
+        else if m._nposition[0] < m._cell.center[0]
             if m._cell._left
                 m._cell = m._cell._left
                 m._cellLeft = false
@@ -71,12 +71,12 @@ module.exports = class PhysicsWorld
         else
             m._cellLeft = false
 
-        if m._nposition[1] > (m._cell.origin[1] + 0.5) + 1
+        if m._nposition[1] >= m._cell.center[1] + 1
             if m._cell._up
                 m._cell = m._cell._up
 
             m._cellDown = false
-        else if m._nposition[1] < (m._cell.origin[1] + 0.5)
+        else if m._nposition[1] < m._cell.center[1]
             if m._cell._down
                 m._cell = m._cell._down
                 m._cellDown = false
