@@ -147,8 +147,8 @@ module.exports = class PhysicsWorld
                     else if !m._cell._up._right
                         m._nposition[0] = m._cell.center[0]
                     else if !m._cell._right
-                        # do the corner thing @todo
-                        m._nposition = m._nposition
+                        # do the corner thing
+                        ensureDistanceFrom m, m._cell.origin[0] + 1, m._cell.origin[1] + 1
             else
                 if m._nposition[1] < m._cell.origin[1] + 1
                     # right bottom quadrant
@@ -158,7 +158,7 @@ module.exports = class PhysicsWorld
                         m._nposition[1] = m._cell.center[1]
                     else if !m._cell._up
                         # do the corner thing @todo
-                        m._nposition = m._nposition
+                        ensureDistanceFrom m, m._cell.origin[0] + 1, m._cell.origin[1] + 1
 
                 else
                     # far quadrant
