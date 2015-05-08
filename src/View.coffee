@@ -68,17 +68,15 @@ module.exports = class View
     render: ->
         modelPosition = vec3.create()
         model = mat4.create()
-        cellScale = vec3.fromValues(2, 2, 1)
 
         blackColor = vec4.fromValues(0, 0, 0, 1)
         grayColor = vec4.fromValues(0.5, 0.5, 0.5, 1)
 
         for m in @_world._movables
-            vec3.set(modelPosition, m._cell.origin[0] + (if m._cellLeft then 0 else 1), m._cell.origin[1] + (if m._cellDown then 0 else 1), 0)
+            vec3.set(modelPosition, m._cell.center[0], m._cell.center[1], 0)
 
             mat4.identity(model)
             mat4.translate(model, model, modelPosition)
-            mat4.scale(model, model, cellScale)
 
             @_gl.uniform4fv @_colorLocation, grayColor
             @_gl.uniformMatrix4fv @_modelLocation, false, model

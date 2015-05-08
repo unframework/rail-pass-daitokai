@@ -64,46 +64,27 @@ module.exports = class PhysicsWorld
             _nposition: vec2.fromValues cell.center[0], cell.center[1]
             _tv: vec2.create()
             _cell: cell
-            _cellLeft: false
-            _cellDown: false
         }
 
-    _updateMovableCell: (m, numAttempts) ->
-        if numAttempts and numAttempts > 10
-            throw new Error 'recursion!'
+    _updateMovableCell: (m) ->
+        dx = m._nposition[0] - m._cell.center[0]
+        dy = m._nposition[1] - m._cell.center[1]
 
-        if m._cellLeft
-            if m._nposition[0] >= m._cell.center[0]
-                m._cellLeft = false
-                @_updateMovableCell m
-        else if m._nposition[0] >= m._cell.center[0] + 1
-            if m._cell._right
-                m._cell = m._cell._right
-                @_updateMovableCell m
+        newCell =
+            if dx >= 0.5
+                if dy > dx then m._cell._up
+                else if dy < -dx then m._cell._down
+                else m._cell._right
+            else if dx < -0.5
+                if dy > -dx then m._cell._up
+                else if dy < dx then m._cell._down
+                else m._cell._left
+            else if dy >= 0.5 then m._cell._up
+            else if dy < -0.5 then m._cell._down
+            else null
 
-            m._cellLeft = false
-        else if m._nposition[0] < m._cell.center[0]
-            if m._cell._left
-                m._cell = m._cell._left
-                m._cellLeft = false
-            else
-                m._cellLeft = true
-        else
-            m._cellLeft = false
-
-        if m._nposition[1] >= m._cell.center[1] + 1
-            if m._cell._up
-                m._cell = m._cell._up
-
-            m._cellDown = false
-        else if m._nposition[1] < m._cell.center[1]
-            if m._cell._down
-                m._cell = m._cell._down
-                m._cellDown = false
-            else
-                m._cellDown = true
-        else
-            m._cellDown = false
+        if newCell
+            m._cell = newCell
 
     _performTimeStep: ->
         nd = vec2.create()
@@ -134,107 +115,11 @@ module.exports = class PhysicsWorld
                 vec2.add m._nposition, m._nposition, nd
 
         collideWithCells = (m) ->
-            if m._cellLeft
-                if m._cellDown
-                    # just a corner
-                    m._nposition[0] = m._cell.center[0]
-                    m._nposition[1] = m._cell.center[1]
-                else
-                    if m._nposition[1] >= m._cell.origin[1] + 1
-                        # top left quadrant
-                        if !m._cell._up
-                            # can't stay up or left
-                            m._nposition[0] = m._cell.center[0]
-                            m._nposition[1] = m._cell.center[1]
-                        else if !m._cell._up._left
-                            # can't stay left
-                            m._nposition[0] = m._cell.center[0]
-                        else
-                            # corner
-                            ensureDistanceFrom m, m._cell.origin[0], m._cell.origin[1] + 1
-                    else
-                        # straight wall
-                        m._nposition[0] = m._cell.center[0]
-
-            else
-                if m._cellDown
-                    if m._nposition[0] >= m._cell.origin[0] + 1
-                        # right bottom quadrant
-                        if !m._cell._right
-                            # can't stay right or down
-                            m._nposition[0] = m._cell.center[0]
-                            m._nposition[1] = m._cell.center[1]
-                        else if !m._cell._right._down
-                            # can't stay down
-                            m._nposition[1] = m._cell.center[1]
-                        else
-                            # corner
-                            ensureDistanceFrom m, m._cell.origin[0] + 1, m._cell.origin[1]
-                    else
-                        # straight wall
-                        m._nposition[1] = m._cell.center[1]
-                else
-
-                    if m._nposition[0] < m._cell.origin[0] + 1
-                        if m._nposition[1] < m._cell.origin[1] + 1
-                            # closest quadrant
-                            if !m._cell._right
-                                m._nposition[0] = m._cell.center[0]
-
-                            if !m._cell._up
-                                m._nposition[1] = m._cell.center[1]
-
-                            if m._cell._right and m._cell._up
-                                if !m._cell._right._up or !m._cell._up._right
-                                    ensureDistanceFrom m, m._cell.origin[0] + 1, m._cell.origin[1] + 1
-
-                        else
-                            # left top quadrant
-                            if !m._cell._up
-                                m._nposition[1] = m._cell.center[1]
-                            else if !m._cell._up._right
-                                m._nposition[0] = m._cell.center[0]
-                            else if !m._cell._right
-                                # do the corner thing
-                                ensureDistanceFrom m, m._cell.origin[0] + 1, m._cell.origin[1] + 1
-                    else
-                        if m._nposition[1] < m._cell.origin[1] + 1
-                            # right bottom quadrant
-                            if !m._cell._right
-                                m._nposition[0] = m._cell.center[0]
-                            else if !m._cell._right._up
-                                m._nposition[1] = m._cell.center[1]
-                            else if !m._cell._up
-                                # do the corner thing
-                                ensureDistanceFrom m, m._cell.origin[0] + 1, m._cell.origin[1] + 1
-
-                        else
-                            # far quadrant
-                            if m._cell._up
-                                if !m._cell._up._right
-                                    # must move out of the quadrant
-                                    m._nposition[0] = m._cell.center[0]
-                                else if !m._cell._right
-                                    # can stay in the quadrant
-                                    m._nposition[1] = m._cell.center[1] + 1
-
-                            if m._cell._right
-                                if !m._cell._right._up
-                                    # must move out of the quadrant
-                                    m._nposition[1] = m._cell.center[1]
-                                else if !m._cell._up
-                                    # can stay in the quadrant
-                                    m._nposition[0] = m._cell.center[0] + 1
-
-                            if !m._cell._up and !m._cell._right
-                                m._nposition[0] = m._cell.center[0]
-                                m._nposition[1] = m._cell.center[1]
 
         for m in @_movables
             # Verlet inertia
             vec2.add m._nposition, m._nposition, m._tv
             @_updateMovableCell m
-
 
         for a in @_movables
             for b in @_movables
