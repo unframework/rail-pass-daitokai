@@ -17,7 +17,6 @@ module.exports = class PhysicsWorld
         c01 = { origin: vec2.fromValues(0, 1), center: vec2.fromValues(0.5, 1.5) }
         c21 = { origin: vec2.fromValues(2, 1), center: vec2.fromValues(2.5, 1.5) }
         c02 = { origin: vec2.fromValues(0, 2), center: vec2.fromValues(0.5, 2.5) }
-        c12 = { origin: vec2.fromValues(1, 2), center: vec2.fromValues(1.5, 2.5) }
         cx2 = { origin: vec2.fromValues(-1, 2), center: vec2.fromValues(-0.5, 2.5) }
 
         c00._up = c01
@@ -31,15 +30,103 @@ module.exports = class PhysicsWorld
         c21._down = c20
         c02._down = c01
         c02._left = cx2
-        c02._right = c12
-        c12._left = c02
         cx2._right = c02
+
+        @_extrudeLR c01, 2, 2
+
+        c = @_extrudeLR c21, 1, 2
+        c = @_extrudeUD c, 1, -2
+        c = @_extrudeLR c, 1, -1
 
         @_timeAccumulator = 0
         @_movables = []
 
-        @_createMovable(c01)
         @_createMovable(c10)
+        @_createMovable(c01)
+
+    _extrudeLR: (cell, height, dx) ->
+        cellRow = [ cell ]
+
+        while cellRow.length < height
+            cellRow.push cellRow[cellRow.length - 1]._up
+
+        if dx > 0
+            while dx > 0
+                dx -= 1
+
+                newCellRow = ({ origin: vec2.fromValues(c.origin[0] + 1, c.origin[1]), center: vec2.fromValues(c.center[0] + 1, c.center[1]) } for c in cellRow)
+
+                for c, i in cellRow
+                    c._right = newCellRow[i]
+                    newCellRow[i]._left = c
+
+                for c, i in newCellRow
+                    if i > 0
+                        c._down = newCellRow[i - 1]
+                        newCellRow[i - 1]._up = c
+
+                cellRow = newCellRow
+
+        else
+            while dx < 0
+                dx += 1
+
+                newCellRow = ({ origin: vec2.fromValues(c.origin[0] - 1, c.origin[1]), center: vec2.fromValues(c.center[0] - 1, c.center[1]) } for c in cellRow)
+
+                for c, i in cellRow
+                    c._left = newCellRow[i]
+                    newCellRow[i]._right = c
+
+                for c, i in newCellRow
+                    if i > 0
+                        c._down = newCellRow[i - 1]
+                        newCellRow[i - 1]._up = c
+
+                cellRow = newCellRow
+
+        cellRow[cellRow.length - 1]
+
+    _extrudeUD: (cell, width, dy) ->
+        cellRow = [ cell ]
+
+        while cellRow.length < width
+            cellRow.push cellRow[cellRow.length - 1]._right
+
+        if dy > 0
+            while dy > 0
+                dy -= 1
+
+                newCellRow = ({ origin: vec2.fromValues(c.origin[0], c.origin[1] + 1), center: vec2.fromValues(c.center[0], c.center[1] + 1) } for c in cellRow)
+
+                for c, i in cellRow
+                    c._up = newCellRow[i]
+                    newCellRow[i]._down = c
+
+                for c, i in newCellRow
+                    if i > 0
+                        c._left = newCellRow[i - 1]
+                        newCellRow[i - 1]._right = c
+
+                cellRow = newCellRow
+
+        else
+            while dy < 0
+                dy += 1
+
+                newCellRow = ({ origin: vec2.fromValues(c.origin[0], c.origin[1] - 1), center: vec2.fromValues(c.center[0], c.center[1] - 1) } for c in cellRow)
+
+                for c, i in cellRow
+                    c._down = newCellRow[i]
+                    newCellRow[i]._up = c
+
+                for c, i in newCellRow
+                    if i > 0
+                        c._left = newCellRow[i - 1]
+                        newCellRow[i - 1]._right = c
+
+                cellRow = newCellRow
+
+        cellRow[cellRow.length - 1]
 
     update: (elapsed) ->
         @_timeAccumulator = Math.max(0.2, @_timeAccumulator + elapsed)
