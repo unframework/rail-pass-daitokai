@@ -46,7 +46,7 @@ whenTextureLoaded = (gl, imageURI) ->
     texturePromise
 
 module.exports = class View
-    constructor: (@_timerStream, @_trainPlatform) ->
+    constructor: (@_timerStream, @_physicsWorld, @_trainPlatform) ->
         @isReady = false
 
         viewCanvas = createCanvas()
@@ -104,7 +104,7 @@ module.exports = class View
             throw new Error 'not ready'
 
         # update camera position
-        newCamDelta = vec3.fromValues(-@_trainPlatform._physicsWorld._movables[0].position[0], -@_trainPlatform._physicsWorld._movables[0].position[1], -8)
+        newCamDelta = vec3.fromValues(-@_physicsWorld._movables[0].position[0], -@_physicsWorld._movables[0].position[1], -8)
         vec3.subtract newCamDelta, newCamDelta, @_cameraPosition
         # camDist = vec3.length newCamDelta
         vec3.scale newCamDelta, newCamDelta, elapsedSeconds
@@ -139,7 +139,7 @@ module.exports = class View
         @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_spriteBuffer
         @_gl.vertexAttribPointer @_flatShader.positionLocation, 2, @_gl.FLOAT, false, 0, 0
 
-        for m in @_trainPlatform._physicsWorld._movables
+        for m in @_physicsWorld._movables
             vec3.set(modelPosition, m._cell.center[0], m._cell.center[1], 0)
 
             mat4.identity(model)
