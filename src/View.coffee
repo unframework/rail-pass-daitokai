@@ -7,8 +7,6 @@ mat4 = require('gl-matrix').mat4
 TrainPlatformRenderer = require('./TrainPlatformRenderer.coffee')
 PersonRenderer = require('./PersonRenderer.coffee')
 
-platformImageURI = 'data:application/octet-stream;base64,' + btoa(require('fs').readFileSync(__dirname + '/floor.png', 'binary'))
-
 createCanvas = ->
     viewCanvas = document.createElement('canvas')
     viewCanvas.style.position = 'fixed'
@@ -26,25 +24,6 @@ setWhiteTexture = (gl, texture) ->
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
 
-whenTextureLoaded = (gl, imageURI) ->
-    texture = gl.createTexture()
-    textureImage = new Image()
-
-    texturePromise = new Promise (resolve) ->
-        textureImage.onload = ->
-            gl.bindTexture(gl.TEXTURE_2D, texture)
-            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureImage)
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
-
-            resolve texture
-
-    textureImage.src = imageURI
-    texturePromise
-
 module.exports = class View
     constructor: (@_timerStream, @_physicsWorld, @_trainPlatform) ->
         @isReady = false
@@ -54,11 +33,11 @@ module.exports = class View
 
         @_gl = viewCanvas.getContext('experimental-webgl')
 
+        @_platformRenderer = new TrainPlatformRenderer @_gl
         @_personRenderer = new PersonRenderer @_gl
 
         Promise.join(
-            whenTextureLoaded(@_gl, platformImageURI).then (t) =>
-                @_platformRenderer = new TrainPlatformRenderer @_gl, t
+            @_platformRenderer.whenReady
         ).then =>
             @isReady = true
 
