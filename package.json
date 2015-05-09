@@ -6,10 +6,12 @@
   "author": "",
   "browserify": {
     "transform": [
-      "coffeeify"
+      "coffeeify",
+      "brfs"
     ]
   },
   "dependencies": {
+    "brfs": "^1.4.0",
     "coffeeify": "^1.1.0",
     "gl-matrix": "^2.1.0",
     "raf": "^2.0.4"
