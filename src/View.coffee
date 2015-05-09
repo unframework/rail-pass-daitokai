@@ -4,9 +4,9 @@ vec3 = require('gl-matrix').vec3
 vec4 = require('gl-matrix').vec4
 mat4 = require('gl-matrix').mat4
 
-FlatShader = require('./FlatShader.coffee')
 FlatTextureShader = require('./FlatTextureShader.coffee')
 TrainPlatformRenderer = require('./TrainPlatformRenderer.coffee')
+PersonRenderer = require('./PersonRenderer.coffee')
 
 platformImageURI = 'data:application/octet-stream;base64,' + btoa(require('fs').readFileSync(__dirname + '/floor.png', 'binary'))
 
@@ -54,19 +54,9 @@ module.exports = class View
         document.body.appendChild viewCanvas
 
         @_gl = viewCanvas.getContext('experimental-webgl')
-        @_flatShader = new FlatShader @_gl
         @_texShader = new FlatTextureShader @_gl
 
-        @_spriteBuffer = @_gl.createBuffer()
-        @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_spriteBuffer
-        @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array([
-          -0.5, -0.5
-          0.5, -0.5
-          -0.5, 0.5
-          -0.5, 0.5
-          0.5, -0.5
-          0.5, 0.5
-        ]), @_gl.STATIC_DRAW
+        @_personRenderer = new PersonRenderer @_gl
 
         Promise.join(
             whenTextureLoaded(@_gl, platformImageURI).then (t) =>
@@ -95,35 +85,8 @@ module.exports = class View
         mat4.perspective camera, 45, window.innerWidth / window.innerHeight, 1, 10
         mat4.translate camera, camera, @_cameraPosition
 
-        modelPosition = vec3.create()
-        model = mat4.create()
-
-        blackColor = vec4.fromValues(0, 0, 0, 1)
-        grayColor = vec4.fromValues(0.5, 0.5, 0.5, 1)
-
         @_platformRenderer.draw camera, @_trainPlatform
 
-        @_flatShader.bind()
-        @_gl.uniformMatrix4fv @_flatShader.cameraLocation, false, camera
-        @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_spriteBuffer
-        @_gl.vertexAttribPointer @_flatShader.positionLocation, 2, @_gl.FLOAT, false, 0, 0
-
         for m in @_physicsWorld._movables
-            vec3.set(modelPosition, m._cell.center[0], m._cell.center[1], 0)
-
-            mat4.identity(model)
-            mat4.translate(model, model, modelPosition)
-
-            @_gl.uniform4fv @_flatShader.colorLocation, grayColor
-            @_gl.uniformMatrix4fv @_flatShader.modelLocation, false, model
-            @_gl.drawArrays @_gl.TRIANGLES, 0, 6
-
-            vec3.set(modelPosition, m.position[0], m.position[1], 0)
-
-            mat4.identity(model)
-            mat4.translate(model, model, modelPosition)
-
-            @_gl.uniform4fv @_flatShader.colorLocation, blackColor
-            @_gl.uniformMatrix4fv @_flatShader.modelLocation, false, model
-            @_gl.drawArrays @_gl.TRIANGLES, 0, 6
+            @_personRenderer.draw camera, m
 
