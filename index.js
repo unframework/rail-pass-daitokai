@@ -1,5 +1,6 @@
 var requestAnimationFrame = require('raf');
 
+var Timer = require('./src/Timer.coffee');
 var PhysicsWorld = require('./src/PhysicsWorld.coffee');
 var View = require('./src/View.coffee');
 var Input = require('./src/Input')
@@ -11,18 +12,14 @@ var input = new Input({
     40: 'DOWN'
 });
 
-var world = new PhysicsWorld(input);
+var timer = new Timer();
+var world = new PhysicsWorld(timer.stream, input);
 var view = new View(world);
 
 requestAnimationFrame(function (time) {
     var renderer = arguments.callee;
-    var lastTime = renderer.lastTime || time;
 
-    var elapsedSeconds = Math.min(100, time - lastTime) / 1000; // limit to 100ms jitter
-
-    renderer.lastTime = time;
-
-    world.update(elapsedSeconds);
+    timer.processTime(time);
     view.render();
 
     requestAnimationFrame(renderer);

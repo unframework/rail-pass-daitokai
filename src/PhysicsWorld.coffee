@@ -9,12 +9,14 @@ map = [
 ]
 
 module.exports = class PhysicsWorld
-    constructor: (@_input) ->
+    constructor: (@_timerStream, @_input) ->
         # sample cell map
         c00 = { origin: vec2.fromValues(0, 0), center: vec2.fromValues(0.5, 0.5) }
 
         @_extrudeLR c00, 1, 3
         @_extrudeUD c00, 4, 3
+
+        @_timerStream.on 'elapsed', (elapsedSeconds) => @_update elapsedSeconds
 
         @_timeAccumulator = 0
         @_movables = []
@@ -105,7 +107,7 @@ module.exports = class PhysicsWorld
 
         cellRow[cellRow.length - 1]
 
-    update: (elapsed) ->
+    _update: (elapsed) ->
         @_timeAccumulator = Math.max(0.2, @_timeAccumulator + elapsed)
 
         while @_timeAccumulator > 0
