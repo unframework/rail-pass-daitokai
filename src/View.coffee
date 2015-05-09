@@ -70,7 +70,7 @@ module.exports = class View
 
         Promise.join(
             whenTextureLoaded(@_gl, platformImageURI).then (t) =>
-                @_platformView = new TrainPlatformView @_gl, @_texShader, t, @_trainPlatform
+                @_platformView = new TrainPlatformView @_gl, @_texShader, t
         ).then =>
             @isReady = true
 
@@ -101,7 +101,7 @@ module.exports = class View
         blackColor = vec4.fromValues(0, 0, 0, 1)
         grayColor = vec4.fromValues(0.5, 0.5, 0.5, 1)
 
-        @_platformView.draw camera, model
+        @_platformView.draw camera, @_trainPlatform
 
         @_flatShader.bind()
         @_gl.uniformMatrix4fv @_flatShader.cameraLocation, false, camera
