@@ -4,6 +4,7 @@ vec4 = require('gl-matrix').vec4
 mat4 = require('gl-matrix').mat4
 
 FlatShader = require('./FlatShader.coffee')
+FlatTextureShader = require('./FlatTextureShader.coffee')
 
 platformImageURI = 'data:application/octet-stream;base64,' + btoa(require('fs').readFileSync(__dirname + '/floor.png', 'binary'))
 
@@ -42,33 +43,7 @@ module.exports = class View
 
         @_gl = viewCanvas.getContext('experimental-webgl')
         @_flatShader = new FlatShader @_gl
-
-        vertexShader = @_gl.createShader(@_gl.VERTEX_SHADER)
-        @_gl.shaderSource vertexShader, 'uniform mat4 camera; uniform mat4 model; attribute vec4 position; varying vec2 uv; void main() { gl_Position = camera * model * position; uv = vec2(0.5, 0.5); }'
-        @_gl.compileShader vertexShader
-        # console.log(@_gl.getShaderInfoLog(vertexShader))
-
-        fragmentShader = @_gl.createShader(@_gl.FRAGMENT_SHADER)
-        @_gl.shaderSource fragmentShader, 'uniform mediump vec4 color; varying mediump vec2 uv; uniform sampler2D texture; void main() { gl_FragColor = texture2D(texture, uv) * color; }'
-        @_gl.compileShader fragmentShader
-        # console.log(@_gl.getShaderInfoLog(fragmentShader))
-
-        @_texProgram = @_gl.createProgram()
-        @_gl.attachShader @_texProgram, vertexShader
-        @_gl.attachShader @_texProgram, fragmentShader
-        @_gl.linkProgram @_texProgram
-        # console.log(@_gl.getProgramInfoLog(@_texProgram));
-
-        @_gl.useProgram @_texProgram
-
-        # look up where the vertex data needs to go.
-        @_modelLocation = @_gl.getUniformLocation(@_texProgram, 'model')
-        @_cameraLocation = @_gl.getUniformLocation(@_texProgram, 'camera')
-        @_positionLocation = @_gl.getAttribLocation(@_texProgram, 'position')
-        @_colorLocation = @_gl.getUniformLocation(@_texProgram, 'color')
-        @_textureLocation = @_gl.getUniformLocation(@_texProgram, 'texture')
-
-        @_gl.enableVertexAttribArray @_positionLocation
+        @_texShader = new FlatTextureShader @_gl
 
         @_spriteBuffer = @_gl.createBuffer()
         @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_spriteBuffer
@@ -123,15 +98,15 @@ module.exports = class View
         blackColor = vec4.fromValues(0, 0, 0, 1)
         grayColor = vec4.fromValues(0.5, 0.5, 0.5, 1)
 
-        @_gl.useProgram @_texProgram
-        @_gl.uniformMatrix4fv @_cameraLocation, false, camera
+        @_texShader.use @_gl
+        @_gl.uniformMatrix4fv @_texShader.cameraLocation, false, camera
         @_gl.bindTexture @_gl.TEXTURE_2D, @_platformTexture
-        @_gl.uniform1i(@_textureLocation, 0)
+        @_gl.uniform1i(@_texShader.textureLocation, 0)
         @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_platformBuffer
-        @_gl.vertexAttribPointer @_positionLocation, 2, @_gl.FLOAT, false, 0, 0
+        @_gl.vertexAttribPointer @_texShader.positionLocation, 2, @_gl.FLOAT, false, 0, 0
 
-        @_gl.uniform4fv @_colorLocation, grayColor
-        @_gl.uniformMatrix4fv @_modelLocation, false, model
+        @_gl.uniform4fv @_texShader.colorLocation, grayColor
+        @_gl.uniformMatrix4fv @_texShader.modelLocation, false, model
 
         @_gl.drawArrays @_gl.TRIANGLES, 0, 6
 
