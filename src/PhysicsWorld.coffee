@@ -33,6 +33,7 @@ module.exports = class PhysicsWorld
                 newCellRow = ({ origin: vec2.fromValues(c.origin[0] + 1, c.origin[1]), center: vec2.fromValues(c.center[0] + 1, c.center[1]) } for c in cellRow)
 
                 for c, i in cellRow
+                    if c._right then throw new Error 'cannot override cell link'
                     c._right = newCellRow[i]
                     newCellRow[i]._left = c
 
@@ -50,6 +51,7 @@ module.exports = class PhysicsWorld
                 newCellRow = ({ origin: vec2.fromValues(c.origin[0] - 1, c.origin[1]), center: vec2.fromValues(c.center[0] - 1, c.center[1]) } for c in cellRow)
 
                 for c, i in cellRow
+                    if c._left then throw new Error 'cannot override cell link'
                     c._left = newCellRow[i]
                     newCellRow[i]._right = c
 
