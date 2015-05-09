@@ -44,8 +44,10 @@ module.exports = class View
         @_positionLocation = @_gl.getAttribLocation(program, 'position')
         @_colorLocation = @_gl.getUniformLocation(program, 'color')
 
-        buffer = @_gl.createBuffer()
-        @_gl.bindBuffer @_gl.ARRAY_BUFFER, buffer
+        @_gl.enableVertexAttribArray @_positionLocation
+
+        @_spriteBuffer = @_gl.createBuffer()
+        @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_spriteBuffer
         @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array([
           -0.5, -0.5
           0.5, -0.5
@@ -54,8 +56,17 @@ module.exports = class View
           0.5, -0.5
           0.5, 0.5
         ]), @_gl.STATIC_DRAW
-        @_gl.enableVertexAttribArray @_positionLocation
-        @_gl.vertexAttribPointer @_positionLocation, 2, @_gl.FLOAT, false, 0, 0
+
+        @_platformBuffer = @_gl.createBuffer()
+        @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_platformBuffer
+        @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array([
+          0, 0
+          4, 0
+          0, 4
+          0, 4
+          4, 0
+          4, 4
+        ]), @_gl.STATIC_DRAW
 
         @_cameraPosition = vec3.create()
         vec3.set @_cameraPosition, 0, 0, -8
@@ -81,6 +92,15 @@ module.exports = class View
 
         blackColor = vec4.fromValues(0, 0, 0, 1)
         grayColor = vec4.fromValues(0.5, 0.5, 0.5, 1)
+
+        @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_platformBuffer
+        @_gl.vertexAttribPointer @_positionLocation, 2, @_gl.FLOAT, false, 0, 0
+        @_gl.uniform4fv @_colorLocation, grayColor
+        @_gl.uniformMatrix4fv @_modelLocation, false, model
+        @_gl.drawArrays @_gl.TRIANGLES, 0, 6
+
+        @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_spriteBuffer
+        @_gl.vertexAttribPointer @_positionLocation, 2, @_gl.FLOAT, false, 0, 0
 
         for m in @_trainPlatform._physicsWorld._movables
             vec3.set(modelPosition, m._cell.center[0], m._cell.center[1], 0)
