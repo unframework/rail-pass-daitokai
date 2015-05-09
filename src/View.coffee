@@ -1,4 +1,5 @@
 
+Promise = require('bluebird')
 vec3 = require('gl-matrix').vec3
 vec4 = require('gl-matrix').vec4
 mat4 = require('gl-matrix').mat4
@@ -25,19 +26,27 @@ setWhiteTexture = (gl, texture) ->
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
 
-loadTexture = (gl, texture, imageURI) ->
+whenTextureLoaded = (gl, imageURI) ->
+    texture = gl.createTexture()
     textureImage = new Image()
-    textureImage.onload = ->
-        gl.bindTexture(gl.TEXTURE_2D, texture)
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureImage)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+
+    texturePromise = new Promise (resolve) ->
+        textureImage.onload = ->
+            gl.bindTexture(gl.TEXTURE_2D, texture)
+            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureImage)
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+
+            resolve texture
 
     textureImage.src = imageURI
+    texturePromise
 
 module.exports = class View
     constructor: (@_timerStream, @_trainPlatform) ->
+        @isReady = false
+
         viewCanvas = createCanvas()
         document.body.appendChild viewCanvas
 
@@ -67,16 +76,20 @@ module.exports = class View
           4, 4
         ]), @_gl.STATIC_DRAW
 
-        @_platformTexture = @_gl.createTexture()
-        # setWhiteTexture @_gl, @_platformTexture
-        loadTexture @_gl, @_platformTexture, platformImageURI
+        Promise.join(
+            whenTextureLoaded(@_gl, platformImageURI).then (t) => @_platformTexture = t
+        ).then =>
+            @isReady = true
 
         @_cameraPosition = vec3.create()
         vec3.set @_cameraPosition, 0, 0, -8
 
-        @_timerStream.on 'elapsed', (elapsedSeconds) => @_render(elapsedSeconds)
+        @_timerStream.on 'elapsed', (elapsedSeconds) => if @isReady then @_render(elapsedSeconds)
 
     _render: (elapsedSeconds) ->
+        if !@isReady
+            throw new Error 'not ready'
+
         # update camera position
         newCamDelta = vec3.fromValues(-@_trainPlatform._physicsWorld._movables[0].position[0], -@_trainPlatform._physicsWorld._movables[0].position[1], -8)
         vec3.subtract newCamDelta, newCamDelta, @_cameraPosition
