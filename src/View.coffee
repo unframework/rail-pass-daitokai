@@ -67,9 +67,6 @@ module.exports = class View
           4, 4
         ]), @_gl.STATIC_DRAW
 
-        @_spriteTexture = @_gl.createTexture()
-        setWhiteTexture @_gl, @_spriteTexture
-
         @_platformTexture = @_gl.createTexture()
         # setWhiteTexture @_gl, @_platformTexture
         loadTexture @_gl, @_platformTexture, platformImageURI
