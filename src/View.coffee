@@ -37,6 +37,8 @@ whenTextureLoaded = (gl, imageURI) ->
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, textureImage)
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
 
             resolve texture
 
@@ -74,6 +76,17 @@ module.exports = class View
           0, 4
           4, 0
           4, 4
+        ]), @_gl.STATIC_DRAW
+
+        @_platformUVBuffer = @_gl.createBuffer()
+        @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_platformUVBuffer
+        @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array([
+          0, 0
+          1, 0
+          0, 1
+          0, 1
+          1, 0
+          1, 1
         ]), @_gl.STATIC_DRAW
 
         Promise.join(
@@ -114,7 +127,8 @@ module.exports = class View
         @_gl.uniform1i(@_texShader.textureLocation, 0)
         @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_platformBuffer
         @_gl.vertexAttribPointer @_texShader.positionLocation, 2, @_gl.FLOAT, false, 0, 0
-
+        @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_platformUVBuffer
+        @_gl.vertexAttribPointer @_texShader.uvPositionLocation, 2, @_gl.FLOAT, false, 0, 0
         @_gl.uniform4fv @_texShader.colorLocation, grayColor
         @_gl.uniformMatrix4fv @_texShader.modelLocation, false, model
 
