@@ -11,19 +11,16 @@ map = [
 module.exports = class PhysicsWorld
     constructor: (@_timerStream, @_input) ->
         # sample cell map
-        c00 = { origin: vec2.fromValues(0, 0), center: vec2.fromValues(0.5, 0.5) }
-
-        @_extrudeLR c00, 1, 3
-        @_extrudeUD c00, 4, 3
+        @originCell = { origin: vec2.fromValues(0, 0), center: vec2.fromValues(0.5, 0.5) }
 
         @_timerStream.on 'elapsed', (elapsedSeconds) => @_update elapsedSeconds
 
         @_timeAccumulator = 0
         @_movables = []
 
-        @_createMovable(c00)
+        @_createMovable(@originCell)
 
-    _extrudeLR: (cell, height, dx) ->
+    extrudeLR: (cell, height, dx) ->
         cellRow = [ cell ]
 
         while cellRow.length < height
@@ -65,7 +62,7 @@ module.exports = class PhysicsWorld
 
         cellRow[cellRow.length - 1]
 
-    _extrudeUD: (cell, width, dy) ->
+    extrudeUD: (cell, width, dy) ->
         cellRow = [ cell ]
 
         while cellRow.length < width
