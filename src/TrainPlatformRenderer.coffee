@@ -1,7 +1,7 @@
 vec4 = require('gl-matrix').vec4
 mat4 = require('gl-matrix').mat4
 
-module.exports = class TrainPlatformView
+module.exports = class TrainPlatformRenderer
   constructor: (@_gl, @_texShader, @_platformTexture) ->
     @_color = vec4.fromValues(1, 1, 1, 1)
 
