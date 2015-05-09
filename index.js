@@ -22,6 +22,7 @@ requestAnimationFrame(function (time) {
     var renderer = arguments.callee;
 
     timer.processTime(time);
+    view.draw();
 
     requestAnimationFrame(renderer);
 });

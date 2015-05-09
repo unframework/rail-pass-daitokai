@@ -44,19 +44,17 @@ module.exports = class View
         @_cameraPosition = vec3.create()
         vec3.set @_cameraPosition, 0, 0, -8
 
-        @_timerStream.on 'elapsed', (elapsedSeconds) => if @isReady then @_render(elapsedSeconds)
+        @_timerStream.on 'elapsed', (elapsedSeconds) =>
+          # update camera position
+          newCamDelta = vec3.fromValues(-@_physicsWorld._movables[0].position[0], -@_physicsWorld._movables[0].position[1], -8)
+          vec3.subtract newCamDelta, newCamDelta, @_cameraPosition
+          vec3.scale newCamDelta, newCamDelta, elapsedSeconds
 
-    _render: (elapsedSeconds) ->
+          vec3.add @_cameraPosition, @_cameraPosition, newCamDelta
+
+    draw: ->
         if !@isReady
             throw new Error 'not ready'
-
-        # update camera position
-        newCamDelta = vec3.fromValues(-@_physicsWorld._movables[0].position[0], -@_physicsWorld._movables[0].position[1], -8)
-        vec3.subtract newCamDelta, newCamDelta, @_cameraPosition
-        # camDist = vec3.length newCamDelta
-        vec3.scale newCamDelta, newCamDelta, elapsedSeconds
-
-        vec3.add @_cameraPosition, @_cameraPosition, newCamDelta
 
         camera = mat4.create()
         mat4.perspective camera, 45, window.innerWidth / window.innerHeight, 1, 10
