@@ -4,7 +4,6 @@ vec3 = require('gl-matrix').vec3
 vec4 = require('gl-matrix').vec4
 mat4 = require('gl-matrix').mat4
 
-FlatTextureShader = require('./FlatTextureShader.coffee')
 TrainPlatformRenderer = require('./TrainPlatformRenderer.coffee')
 PersonRenderer = require('./PersonRenderer.coffee')
 
@@ -54,13 +53,12 @@ module.exports = class View
         document.body.appendChild viewCanvas
 
         @_gl = viewCanvas.getContext('experimental-webgl')
-        @_texShader = new FlatTextureShader @_gl
 
         @_personRenderer = new PersonRenderer @_gl
 
         Promise.join(
             whenTextureLoaded(@_gl, platformImageURI).then (t) =>
-                @_platformRenderer = new TrainPlatformRenderer @_gl, @_texShader, t
+                @_platformRenderer = new TrainPlatformRenderer @_gl, t
         ).then =>
             @isReady = true
 

@@ -1,8 +1,11 @@
 vec4 = require('gl-matrix').vec4
 mat4 = require('gl-matrix').mat4
 
+FlatTextureShader = require('./FlatTextureShader.coffee')
+
 module.exports = class TrainPlatformRenderer
-  constructor: (@_gl, @_texShader, @_platformTexture) ->
+  constructor: (@_gl, @_platformTexture) ->
+    @_texShader = new FlatTextureShader @_gl
     @_color = vec4.fromValues(1, 1, 1, 1)
 
     @_platformBuffer = @_gl.createBuffer()
