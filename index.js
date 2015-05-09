@@ -1,7 +1,7 @@
 var requestAnimationFrame = require('raf');
 
 var Timer = require('./src/Timer.coffee');
-var PhysicsWorld = require('./src/PhysicsWorld.coffee');
+var TrainPlatform = require('./src/TrainPlatform.coffee');
 var View = require('./src/View.coffee');
 var Input = require('./src/Input')
 
@@ -13,7 +13,7 @@ var input = new Input({
 });
 
 var timer = new Timer();
-var world = new PhysicsWorld(timer.stream, input);
+var world = new TrainPlatform(timer.stream, input);
 var view = new View(timer.stream, world);
 
 requestAnimationFrame(function (time) {

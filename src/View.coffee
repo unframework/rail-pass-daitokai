@@ -14,7 +14,7 @@ createCanvas = ->
     viewCanvas
 
 module.exports = class View
-    constructor: (@_timerStream, @_world) ->
+    constructor: (@_timerStream, @_trainPlatform) ->
         viewCanvas = createCanvas()
         document.body.appendChild viewCanvas
 
@@ -64,7 +64,7 @@ module.exports = class View
 
     _render: (elapsedSeconds) ->
         # update camera position
-        newCamDelta = vec3.fromValues(-@_world._movables[0].position[0], -@_world._movables[0].position[1], -8)
+        newCamDelta = vec3.fromValues(-@_trainPlatform._physicsWorld._movables[0].position[0], -@_trainPlatform._physicsWorld._movables[0].position[1], -8)
         vec3.subtract newCamDelta, newCamDelta, @_cameraPosition
         # camDist = vec3.length newCamDelta
         vec3.scale newCamDelta, newCamDelta, elapsedSeconds
@@ -82,7 +82,7 @@ module.exports = class View
         blackColor = vec4.fromValues(0, 0, 0, 1)
         grayColor = vec4.fromValues(0.5, 0.5, 0.5, 1)
 
-        for m in @_world._movables
+        for m in @_trainPlatform._physicsWorld._movables
             vec3.set(modelPosition, m._cell.center[0], m._cell.center[1], 0)
 
             mat4.identity(model)
