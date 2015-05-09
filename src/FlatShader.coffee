@@ -25,5 +25,5 @@ module.exports = class FlatShader
 
     @_gl.enableVertexAttribArray @positionLocation
 
-  use: ->
+  bind: ->
     @_gl.useProgram @_program

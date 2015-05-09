@@ -108,7 +108,7 @@ module.exports = class View
         blackColor = vec4.fromValues(0, 0, 0, 1)
         grayColor = vec4.fromValues(0.5, 0.5, 0.5, 1)
 
-        @_texShader.use @_gl
+        @_texShader.bind()
         @_gl.uniformMatrix4fv @_texShader.cameraLocation, false, camera
         @_gl.bindTexture @_gl.TEXTURE_2D, @_platformTexture
         @_gl.uniform1i(@_texShader.textureLocation, 0)
@@ -120,7 +120,7 @@ module.exports = class View
 
         @_gl.drawArrays @_gl.TRIANGLES, 0, 6
 
-        @_flatShader.use @_gl
+        @_flatShader.bind()
         @_gl.uniformMatrix4fv @_flatShader.cameraLocation, false, camera
         @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_spriteBuffer
         @_gl.vertexAttribPointer @_flatShader.positionLocation, 2, @_gl.FLOAT, false, 0, 0
