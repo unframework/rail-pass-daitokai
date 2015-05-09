@@ -14,7 +14,7 @@ createCanvas = ->
     viewCanvas
 
 module.exports = class View
-    constructor: (@_world) ->
+    constructor: (@_timerStream, @_world) ->
         viewCanvas = createCanvas()
         document.body.appendChild viewCanvas
 
@@ -57,15 +57,25 @@ module.exports = class View
         @_gl.enableVertexAttribArray @_positionLocation
         @_gl.vertexAttribPointer @_positionLocation, 2, @_gl.FLOAT, false, 0, 0
 
-        camera = mat4.create()
-        cameraPosition = vec3.create()
+        @_cameraPosition = vec3.create()
+        vec3.set @_cameraPosition, 0, 0, -8
 
-        vec3.set cameraPosition, 0, 0, -8
+        @_timerStream.on 'elapsed', (elapsedSeconds) => @_render(elapsedSeconds)
+
+    _render: (elapsedSeconds) ->
+        # update camera position
+        newCamDelta = vec3.fromValues(-@_world._movables[0].position[0], -@_world._movables[0].position[1], -8)
+        vec3.subtract newCamDelta, newCamDelta, @_cameraPosition
+        # camDist = vec3.length newCamDelta
+        vec3.scale newCamDelta, newCamDelta, elapsedSeconds
+
+        vec3.add @_cameraPosition, @_cameraPosition, newCamDelta
+
+        camera = mat4.create()
         mat4.perspective camera, 45, window.innerWidth / window.innerHeight, 1, 10
-        mat4.translate camera, camera, cameraPosition
+        mat4.translate camera, camera, @_cameraPosition
         @_gl.uniformMatrix4fv @_cameraLocation, false, camera
 
-    render: ->
         modelPosition = vec3.create()
         model = mat4.create()
 

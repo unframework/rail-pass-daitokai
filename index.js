@@ -14,13 +14,12 @@ var input = new Input({
 
 var timer = new Timer();
 var world = new PhysicsWorld(timer.stream, input);
-var view = new View(world);
+var view = new View(timer.stream, world);
 
 requestAnimationFrame(function (time) {
     var renderer = arguments.callee;
 
     timer.processTime(time);
-    view.render();
 
     requestAnimationFrame(renderer);
 });

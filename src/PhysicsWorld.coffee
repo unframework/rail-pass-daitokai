@@ -241,6 +241,7 @@ module.exports = class PhysicsWorld
                 if a is b
                     break # exit loop early
 
+                # @todo this + cell collision several times
                 restoreDistance a, b
 
         for m in @_movables
