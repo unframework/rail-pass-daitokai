@@ -29,7 +29,7 @@ module.exports = class TrainPlatformRenderer
 
     @_modelMatrix = mat4.create()
 
-  draw: (cameraMatrix, @_trainPlatform) ->
+  draw: (cameraMatrix, trainPlatform) ->
     @_texShader.bind()
 
     @_gl.uniformMatrix4fv @_texShader.cameraLocation, false, cameraMatrix
