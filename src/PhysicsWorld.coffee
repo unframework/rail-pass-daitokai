@@ -12,37 +12,14 @@ module.exports = class PhysicsWorld
     constructor: (@_input) ->
         # sample cell map
         c00 = { origin: vec2.fromValues(0, 0), center: vec2.fromValues(0.5, 0.5) }
-        c10 = { origin: vec2.fromValues(1, 0), center: vec2.fromValues(1.5, 0.5) }
-        c20 = { origin: vec2.fromValues(2, 0), center: vec2.fromValues(2.5, 0.5) }
-        c01 = { origin: vec2.fromValues(0, 1), center: vec2.fromValues(0.5, 1.5) }
-        c21 = { origin: vec2.fromValues(2, 1), center: vec2.fromValues(2.5, 1.5) }
-        c02 = { origin: vec2.fromValues(0, 2), center: vec2.fromValues(0.5, 2.5) }
-        cx2 = { origin: vec2.fromValues(-1, 2), center: vec2.fromValues(-0.5, 2.5) }
 
-        c00._up = c01
-        c00._right = c10
-        c10._left = c00
-        c10._right = c20
-        c20._left = c10
-        c20._up = c21
-        c01._down = c00
-        c01._up = c02
-        c21._down = c20
-        c02._down = c01
-        c02._left = cx2
-        cx2._right = c02
-
-        @_extrudeLR c01, 2, 2
-
-        c = @_extrudeLR c21, 1, 2
-        c = @_extrudeUD c, 1, -2
-        c = @_extrudeLR c, 1, -1
+        @_extrudeLR c00, 1, 3
+        @_extrudeUD c00, 4, 3
 
         @_timeAccumulator = 0
         @_movables = []
 
-        @_createMovable(c10)
-        @_createMovable(c01)
+        @_createMovable(c00)
 
     _extrudeLR: (cell, height, dx) ->
         cellRow = [ cell ]
