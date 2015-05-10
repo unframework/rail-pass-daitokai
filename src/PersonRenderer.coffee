@@ -6,10 +6,13 @@ isosurface = require('isosurface')
 
 FlatShader = require('./FlatShader.coffee')
 
-testVoxels = voxelCritterConvert.toVoxels('C/2ecc713498db34495ee67e22ecf0f1000000:A/YhUhWhhSfSfWhiSfSfWhhUhSfUhWffWfhWffUfUeUhWhfUhWhhefciUhWfeUhUhShShSdSkUhSfSfSfSfWhhShShUhSfSfWhheiehUhWffUhSfUf');
+voxelScale = 0.25
+voxelURL = 'http://voxelbuilder.com/edit.html#C/2ecc713498db34495ee67e22ecf0f1000000:A/YhUhWhhSfSfWhiSfSfWhhUhSfUhWffWfhWffUfUeUhWhfUhWhhefciUhWfeUhUhShShSdSkUhSfSfSfSfWhhShShUhSfSfWhheiehUhWffUhSfUf'
 
-lBound = testVoxels.bounds[0]
-hBound = testVoxels.bounds[1]
+voxelModel = voxelCritterConvert.toVoxels(voxelURL.split('#').pop());
+
+lBound = voxelModel.bounds[0]
+hBound = voxelModel.bounds[1]
 
 voxelW = hBound[0] - lBound[0] + 1
 voxelH = hBound[1] - lBound[1] + 1
@@ -25,7 +28,7 @@ mesh = isosurface.surfaceNets [voxelW + 2, voxelH + 2, voxelD + 2], (x, y, z) ->
   else if x >= hBound[0] + 1 or y >= hBound[1] + 1 or z >= hBound[2] + 1
     -0.5
   else
-    if testVoxels.voxels[x + '|' + y + '|' + z] is 0
+    if voxelModel.voxels[x + '|' + y + '|' + z] is 0
       0.5
     else
       -0.5
@@ -39,17 +42,17 @@ for c in mesh.cells
     v1 = mesh.positions[c[1]]
     v2 = mesh.positions[c[2]]
 
-    meshTriangleVertexData.push (v0[0] - voxelCW) * 0.25
-    meshTriangleVertexData.push (v0[2] - voxelCD) * 0.25
-    meshTriangleVertexData.push (v0[1]) * 0.25
+    meshTriangleVertexData.push (v0[0] - voxelCW) * voxelScale
+    meshTriangleVertexData.push (v0[2] - voxelCD) * voxelScale
+    meshTriangleVertexData.push (v0[1]) * voxelScale
 
-    meshTriangleVertexData.push (v1[0] - voxelCW) * 0.25
-    meshTriangleVertexData.push (v1[2] - voxelCD) * 0.25
-    meshTriangleVertexData.push (v1[1]) * 0.25
+    meshTriangleVertexData.push (v1[0] - voxelCW) * voxelScale
+    meshTriangleVertexData.push (v1[2] - voxelCD) * voxelScale
+    meshTriangleVertexData.push (v1[1]) * voxelScale
 
-    meshTriangleVertexData.push (v2[0] - voxelCW) * 0.25
-    meshTriangleVertexData.push (v2[2] - voxelCD) * 0.25
-    meshTriangleVertexData.push (v2[1]) * 0.25
+    meshTriangleVertexData.push (v2[0] - voxelCW) * voxelScale
+    meshTriangleVertexData.push (v2[2] - voxelCD) * voxelScale
+    meshTriangleVertexData.push (v2[1]) * voxelScale
   else
     throw new Error('poly face')
 
