@@ -11,8 +11,8 @@ meshH = 3
 meshD = 3
 
 meshArray = ndarray(new Float64Array([
-  0, 0, 0, 1, 1, 1, 0, 0, 0
-  0, 0, 0, 1, 1, 1, 0, 0, 0
+  0, 0, 0, 0, 1, 0, 0, 0, 0
+  0, 1, 0, 1, 1, 1, 0, 1, 0
   0, 0, 0, 0, 1, 0, 0, 0, 0
 ]), [meshW, meshH, meshD])
 
