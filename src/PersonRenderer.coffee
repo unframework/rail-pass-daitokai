@@ -1,44 +1,45 @@
 vec3 = require('gl-matrix').vec3
 vec4 = require('gl-matrix').vec4
 mat4 = require('gl-matrix').mat4
-ndarray = require('ndarray')
+voxelCritterConvert = require('../voxelCritterConvert')
 isosurface = require('isosurface')
 
 FlatShader = require('./FlatShader.coffee')
 
-meshW = 3
-meshH = 3
-meshD = 3
+testVoxels = voxelCritterConvert.toVoxels('C/2ecc713498db34495ee67e22ecf0f1000000:A/YhUhWhhSfSfWhiSfSfWhhUhShSeWhhSfSiWfdUhWhiSfUdWffUfWehUhchkUhShUfeehfShWffSh');
 
-meshArray = ndarray(new Float64Array([
-  0, 0, 0, 0, 1, 0, 0, 0, 0
-  0, 1, 0, 1, 1, 1, 0, 1, 0
-  0, 0, 0, 0, 1, 0, 0, 0, 0
-]), [meshW, meshH, meshD])
+lBound = testVoxels.bounds[0]
+hBound = testVoxels.bounds[1]
 
-mesh = isosurface.surfaceNets [meshW + 2, meshH + 2, meshD + 2], (x, y, z) ->
-  if x < 0 or y < 0 or z < 0
+voxelW = hBound[0] - lBound[0] + 1
+voxelH = hBound[1] - lBound[1] + 1
+voxelD = hBound[2] - lBound[2] + 1
+
+mesh = isosurface.surfaceNets [voxelW + 2, voxelH + 2, voxelD + 2], (x, y, z) ->
+  if x < lBound[0] or y < lBound[1] or z < lBound[2]
     -0.5
-  else if x >= meshW or y >= meshH or z >= meshD
+  else if x >= hBound[0] + 1 or y >= hBound[1] + 1 or z >= hBound[2] + 1
     -0.5
   else
-    v = meshArray.get(x, y, z)
-    v - 0.5
-, [[-1, -1, -1], [meshW + 1, meshH + 1, meshD + 1]]
+    if testVoxels.voxels[x + '|' + y + '|' + z] is 0
+      0.5
+    else
+      -0.5
+, [[lBound[0] - 1, lBound[1] - 1, lBound[2] - 1], [hBound[0] + 2, hBound[1] + 2, hBound[2] + 2]]
 
 meshTriangleVertexData = []
 
 for c in mesh.cells
   if c.length is 3
-    meshTriangleVertexData.push mesh.positions[c[0]][0]
-    meshTriangleVertexData.push mesh.positions[c[0]][1]
-    meshTriangleVertexData.push mesh.positions[c[0]][2]
-    meshTriangleVertexData.push mesh.positions[c[1]][0]
-    meshTriangleVertexData.push mesh.positions[c[1]][1]
-    meshTriangleVertexData.push mesh.positions[c[1]][2]
-    meshTriangleVertexData.push mesh.positions[c[2]][0]
-    meshTriangleVertexData.push mesh.positions[c[2]][1]
-    meshTriangleVertexData.push mesh.positions[c[2]][2]
+    meshTriangleVertexData.push mesh.positions[c[0]][0] * 0.5
+    meshTriangleVertexData.push mesh.positions[c[0]][1] * 0.5
+    meshTriangleVertexData.push mesh.positions[c[0]][2] * 0.5
+    meshTriangleVertexData.push mesh.positions[c[1]][0] * 0.5
+    meshTriangleVertexData.push mesh.positions[c[1]][1] * 0.5
+    meshTriangleVertexData.push mesh.positions[c[1]][2] * 0.5
+    meshTriangleVertexData.push mesh.positions[c[2]][0] * 0.5
+    meshTriangleVertexData.push mesh.positions[c[2]][1] * 0.5
+    meshTriangleVertexData.push mesh.positions[c[2]][2] * 0.5
   else
     throw new Error('poly face')
 
