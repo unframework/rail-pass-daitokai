@@ -25,7 +25,7 @@ setWhiteTexture = (gl, texture) ->
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
 
 module.exports = class View
-    constructor: (@_timerStream, @_physicsWorld, @_trainPlatform) ->
+    constructor: (@_timerStream, @_personList, @_trainPlatform) ->
         @isReady = false
 
         viewCanvas = createCanvas()
@@ -48,7 +48,7 @@ module.exports = class View
 
         @_timerStream.on 'elapsed', (elapsedSeconds) =>
           # update camera position
-          newCamDelta = vec3.fromValues(-@_physicsWorld._movables[0].position[0], -@_physicsWorld._movables[0].position[1], -8)
+          newCamDelta = vec3.fromValues(-@_personList[0]._movable.position[0], -@_personList[0]._movable.position[1], -8)
           vec3.subtract newCamDelta, newCamDelta, @_cameraPosition
           vec3.scale newCamDelta, newCamDelta, elapsedSeconds
 
@@ -64,6 +64,6 @@ module.exports = class View
 
         @_platformRenderer.draw camera, @_trainPlatform
 
-        for m in @_physicsWorld._movables
-            @_personRenderer.draw camera, m
+        for person in @_personList
+            @_personRenderer.draw camera, person._movable
 

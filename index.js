@@ -3,6 +3,7 @@ var requestAnimationFrame = require('raf');
 var Timer = require('./src/Timer.coffee');
 var PhysicsWorld = require('./src/PhysicsWorld.coffee');
 var TrainPlatform = require('./src/TrainPlatform.coffee');
+var Person = require('./src/Person.coffee')
 var View = require('./src/View.coffee');
 var Input = require('./src/Input')
 
@@ -16,7 +17,8 @@ var input = new Input({
 var timer = new Timer();
 var world = new PhysicsWorld(timer.stream, input);
 var platform = new TrainPlatform(timer.stream, world);
-var view = new View(timer.stream, world, platform);
+var personList = [ new Person(timer.stream, input, world._movables[0]) ]
+var view = new View(timer.stream, personList, platform);
 
 requestAnimationFrame(function (time) {
     var renderer = arguments.callee;
