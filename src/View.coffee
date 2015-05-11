@@ -5,6 +5,7 @@ vec4 = require('gl-matrix').vec4
 mat4 = require('gl-matrix').mat4
 
 TrainPlatformRenderer = require('./TrainPlatformRenderer.coffee')
+TrainRenderer = require('./TrainRenderer.coffee')
 PersonRenderer = require('./PersonRenderer.coffee')
 
 createCanvas = ->
@@ -25,7 +26,7 @@ setWhiteTexture = (gl, texture) ->
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
 
 module.exports = class View
-    constructor: (@_timerStream, @_personList, @_trainPlatform) ->
+    constructor: (@_timerStream, @_personList, @_train, @_trainPlatform) ->
         @isReady = false
 
         viewCanvas = createCanvas()
@@ -36,6 +37,7 @@ module.exports = class View
         @_gl.depthFunc @_gl.LEQUAL
 
         @_platformRenderer = new TrainPlatformRenderer @_gl
+        @_trainRenderer = new TrainRenderer @_gl
         @_personRenderer = new PersonRenderer @_gl
 
         Promise.join(
@@ -63,6 +65,7 @@ module.exports = class View
         mat4.translate camera, camera, @_cameraPosition
 
         @_platformRenderer.draw camera, @_trainPlatform
+        @_trainRenderer.draw camera, @_train
 
         for person in @_personList
             @_personRenderer.draw camera, person
