@@ -22,7 +22,6 @@ module.exports = class PersonRenderer
     @_modelMatrix = mat4.create()
 
     @_blackColor = vec4.fromValues(0, 0, 0, 1)
-    @_grayColor = vec4.fromValues(0.5, 0.5, 0.5, 1)
 
   draw: (cameraMatrix, person) ->
     # general setup
@@ -32,17 +31,6 @@ module.exports = class PersonRenderer
 
     @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_meshBuffer
     @_gl.vertexAttribPointer @_flatShader.positionLocation, 3, @_gl.FLOAT, false, 0, 0
-
-    # cell
-    vec3.set(@_modelPosition, person._movable._cell.center[0], person._movable._cell.center[1], 0)
-
-    mat4.identity(@_modelMatrix)
-    mat4.translate(@_modelMatrix, @_modelMatrix, @_modelPosition)
-
-    @_gl.uniform4fv @_flatShader.colorLocation, @_grayColor
-    @_gl.uniformMatrix4fv @_flatShader.modelLocation, false, @_modelMatrix
-
-    @_gl.drawArrays @_gl.TRIANGLES, 0, voxelMesh.triangleCount * 3
 
     # body
     vec3.set(@_modelPosition, person._movable.position[0], person._movable.position[1], 0)
