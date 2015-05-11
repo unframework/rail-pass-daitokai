@@ -18,8 +18,6 @@ module.exports = class PhysicsWorld
         @_timeAccumulator = 0
         @_movables = []
 
-        @_createMovable(@originCell)
-
     extrudeLR: (cell, height, dx) ->
         cellRow = [ cell ]
 
@@ -113,14 +111,18 @@ module.exports = class PhysicsWorld
             @_timeAccumulator -= TIME_STEP
             @_performTimeStep()
 
-    _createMovable: (cell) ->
-        @_movables.push {
+    createMovable: (cell) ->
+        m = {
             position: vec2.fromValues cell.center[0], cell.center[1]
             walk: vec2.create()
             _nposition: vec2.fromValues cell.center[0], cell.center[1]
             _tv: vec2.create()
             _cell: cell
         }
+
+        @_movables.push m
+
+        m
 
     _updateMovableCell: (m) ->
         dx = m._nposition[0] - m._cell.center[0]

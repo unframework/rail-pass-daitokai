@@ -17,7 +17,7 @@ var input = new Input({
 var timer = new Timer();
 var world = new PhysicsWorld(timer.stream, input);
 var platform = new TrainPlatform(timer.stream, world);
-var personList = [ new Person(timer.stream, input, world._movables[0]) ]
+var personList = [ new Person(timer.stream, input, world, world.originCell) ]
 var view = new View(timer.stream, personList, platform);
 
 requestAnimationFrame(function (time) {
