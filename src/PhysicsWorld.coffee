@@ -111,27 +111,13 @@ module.exports = class PhysicsWorld
 
         while @_timeAccumulator > 0
             @_timeAccumulator -= TIME_STEP
-
-            vec2.set @_movables[0]._walkNudge, 0, 0
-
-            walkAccel = 0.1
-
-            if @_input.status.LEFT
-                @_movables[0]._walkNudge[0] -= walkAccel * TIME_STEP * TIME_STEP
-            if @_input.status.RIGHT
-                @_movables[0]._walkNudge[0] += walkAccel * TIME_STEP * TIME_STEP
-            if @_input.status.UP
-                @_movables[0]._walkNudge[1] += walkAccel * TIME_STEP * TIME_STEP
-            if @_input.status.DOWN
-                @_movables[0]._walkNudge[1] -= walkAccel * TIME_STEP * TIME_STEP
-
             @_performTimeStep()
 
     _createMovable: (cell) ->
         @_movables.push {
             position: vec2.fromValues cell.center[0], cell.center[1]
+            walk: vec2.create()
             _nposition: vec2.fromValues cell.center[0], cell.center[1]
-            _walkNudge: vec2.create()
             _tv: vec2.create()
             _cell: cell
         }
@@ -238,15 +224,15 @@ module.exports = class PhysicsWorld
 
         for m in @_movables
             # Verlet inertia
-            vec2.add m._nposition, m._nposition, m._tv
+            vec2.add m._nposition, m.position, m._tv
 
             # apply walk
             # maximum new displacement
             # NOTE: if already moving faster than walk-speed, we preserve that
-            vec2.subtract nd, m._nposition, m.position
-            maxD = Math.max(vec2.length(nd), walkMax * TIME_STEP);
+            maxD = Math.max(vec2.length(m._tv), walkMax * TIME_STEP);
 
-            vec2.add m._nposition, m._nposition, m._walkNudge
+            vec2.scale nd, m.walk, TIME_STEP * TIME_STEP
+            vec2.add m._nposition, m._nposition, nd
 
             # constrain new displacement to our maximum
             vec2.subtract nd, m._nposition, m.position
