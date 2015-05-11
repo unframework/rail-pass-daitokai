@@ -65,5 +65,5 @@ module.exports = class View
         @_platformRenderer.draw camera, @_trainPlatform
 
         for person in @_personList
-            @_personRenderer.draw camera, person._movable
+            @_personRenderer.draw camera, person
 

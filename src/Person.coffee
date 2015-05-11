@@ -4,6 +4,8 @@ module.exports = class Person
   constructor: (@_timerStream, @_input, @_physicsWorld, cell) ->
     @_movable = @_physicsWorld.createMovable cell
 
+    @orientation = 0
+
     @_timerStream.on 'elapsed', (elapsedSeconds) =>
       vec2.set @_movable.walk, 0, 0
 
@@ -18,3 +20,5 @@ module.exports = class Person
       if @_input.status.DOWN
         @_movable.walk[1] -= walkAccel
 
+      if @_movable.walk[0] isnt 0 or @_movable.walk[1] isnt 0
+        @orientation = Math.atan2 @_movable.walk[1], @_movable.walk[0]
