@@ -32,6 +32,8 @@ module.exports = class View
         document.body.appendChild viewCanvas
 
         @_gl = viewCanvas.getContext('experimental-webgl')
+        @_gl.enable @_gl.DEPTH_TEST
+        @_gl.depthFunc @_gl.LEQUAL
 
         @_platformRenderer = new TrainPlatformRenderer @_gl
         @_personRenderer = new PersonRenderer @_gl
