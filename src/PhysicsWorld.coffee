@@ -2,6 +2,8 @@
 vec2 = require('gl-matrix').vec2;
 
 TIME_STEP = 0.016666
+CELL_SIZE = 0.5
+CELL_HALF_SIZE = CELL_SIZE / 2
 
 map = [
     'x  '
@@ -11,7 +13,7 @@ map = [
 module.exports = class PhysicsWorld
     constructor: (@_timerStream, @_input) ->
         # sample cell map
-        @originCell = { origin: vec2.fromValues(0, 0), center: vec2.fromValues(0.5, 0.5) }
+        @originCell = { origin: vec2.fromValues(0, 0), center: vec2.fromValues(CELL_HALF_SIZE, CELL_HALF_SIZE) }
 
         @_timerStream.on 'elapsed', (elapsedSeconds) => @_update elapsedSeconds
 
@@ -28,7 +30,7 @@ module.exports = class PhysicsWorld
             while dx > 0
                 dx -= 1
 
-                newCellRow = ({ origin: vec2.fromValues(c.origin[0] + 1, c.origin[1]), center: vec2.fromValues(c.center[0] + 1, c.center[1]) } for c in cellRow)
+                newCellRow = ({ origin: vec2.fromValues(c.origin[0] + CELL_SIZE, c.origin[1]), center: vec2.fromValues(c.center[0] + CELL_SIZE, c.center[1]) } for c in cellRow)
 
                 for c, i in cellRow
                     if c._right then throw new Error 'cannot override cell link'
@@ -46,7 +48,7 @@ module.exports = class PhysicsWorld
             while dx < 0
                 dx += 1
 
-                newCellRow = ({ origin: vec2.fromValues(c.origin[0] - 1, c.origin[1]), center: vec2.fromValues(c.center[0] - 1, c.center[1]) } for c in cellRow)
+                newCellRow = ({ origin: vec2.fromValues(c.origin[0] - CELL_SIZE, c.origin[1]), center: vec2.fromValues(c.center[0] - CELL_SIZE, c.center[1]) } for c in cellRow)
 
                 for c, i in cellRow
                     if c._left then throw new Error 'cannot override cell link'
@@ -72,7 +74,7 @@ module.exports = class PhysicsWorld
             while dy > 0
                 dy -= 1
 
-                newCellRow = ({ origin: vec2.fromValues(c.origin[0], c.origin[1] + 1), center: vec2.fromValues(c.center[0], c.center[1] + 1) } for c in cellRow)
+                newCellRow = ({ origin: vec2.fromValues(c.origin[0], c.origin[1] + CELL_SIZE), center: vec2.fromValues(c.center[0], c.center[1] + CELL_SIZE) } for c in cellRow)
 
                 for c, i in cellRow
                     c._up = newCellRow[i]
@@ -89,7 +91,7 @@ module.exports = class PhysicsWorld
             while dy < 0
                 dy += 1
 
-                newCellRow = ({ origin: vec2.fromValues(c.origin[0], c.origin[1] - 1), center: vec2.fromValues(c.center[0], c.center[1] - 1) } for c in cellRow)
+                newCellRow = ({ origin: vec2.fromValues(c.origin[0], c.origin[1] - CELL_SIZE), center: vec2.fromValues(c.center[0], c.center[1] - CELL_SIZE) } for c in cellRow)
 
                 for c, i in cellRow
                     c._down = newCellRow[i]
@@ -129,16 +131,16 @@ module.exports = class PhysicsWorld
         dy = m._nposition[1] - m._cell.center[1]
 
         newCell =
-            if dx >= 0.5
+            if dx >= CELL_HALF_SIZE
                 if dy > dx then m._cell._up
                 else if dy < -dx then m._cell._down
                 else m._cell._right
-            else if dx < -0.5
+            else if dx < -CELL_HALF_SIZE
                 if dy > -dx then m._cell._up
                 else if dy < dx then m._cell._down
                 else m._cell._left
-            else if dy >= 0.5 then m._cell._up
-            else if dy < -0.5 then m._cell._down
+            else if dy >= CELL_HALF_SIZE then m._cell._up
+            else if dy < -CELL_HALF_SIZE then m._cell._down
             else null
 
         if newCell
@@ -153,10 +155,10 @@ module.exports = class PhysicsWorld
             vec2.subtract nd, b._nposition, a._nposition
             d2 = vec2.squaredLength nd
 
-            if d2 < 1
+            if d2 < CELL_SIZE
                 dist = Math.sqrt d2
 
-                nudgeDist = dist - 1
+                nudgeDist = dist - CELL_SIZE
                 vec2.scale halfNudge, nd, nudgeDist * 0.5 / dist
 
                 vec2.add a._nposition, a._nposition, halfNudge
@@ -168,9 +170,9 @@ module.exports = class PhysicsWorld
         ensureDistanceFrom = (m, x, y) ->
             vec2.set nd, x, y
             vec2.subtract nd, m._nposition, nd
-            if vec2.squaredLength(nd) < 0.5 * 0.5 # @todo check for zero distance
+            if vec2.squaredLength(nd) < CELL_HALF_SIZE * CELL_HALF_SIZE # @todo check for zero distance
                 dist = vec2.length(nd)
-                vec2.scale nd, nd, (0.5 - dist) / dist
+                vec2.scale nd, nd, (CELL_HALF_SIZE - dist) / dist
                 vec2.add m._nposition, m._nposition, nd
 
         collideWithCells = (m) ->
@@ -199,7 +201,7 @@ module.exports = class PhysicsWorld
 
                     if m._cell._left and m._cell._up and !m._cell._left._up
                         # @todo deal with overlapping cell graph
-                        ensureDistanceFrom m, m._cell.origin[0], m._cell.origin[1] + 1
+                        ensureDistanceFrom m, m._cell.origin[0], m._cell.origin[1] + CELL_SIZE
             else
                 if dy < 0
                     # right bottom corner
@@ -211,7 +213,7 @@ module.exports = class PhysicsWorld
 
                     if m._cell._right and m._cell._down and !m._cell._right._down
                         # @todo deal with overlapping cell graph
-                        ensureDistanceFrom m, m._cell.origin[0] + 1, m._cell.origin[1]
+                        ensureDistanceFrom m, m._cell.origin[0] + CELL_SIZE, m._cell.origin[1]
                 else
                     # right top corner
                     if !m._cell._right
@@ -222,7 +224,7 @@ module.exports = class PhysicsWorld
 
                     if m._cell._right and m._cell._up and !m._cell._right._up
                         # @todo deal with overlapping cell graph
-                        ensureDistanceFrom m, m._cell.origin[0] + 1, m._cell.origin[1] + 1
+                        ensureDistanceFrom m, m._cell.origin[0] + CELL_SIZE, m._cell.origin[1] + CELL_SIZE
 
         for m in @_movables
             # Verlet inertia
