@@ -18,7 +18,7 @@ var input = new Input({
 var timer = new Timer();
 var world = new PhysicsWorld(timer.stream, input);
 var platform = new TrainPlatform(timer.stream, world);
-var train = new Train(timer.stream);
+var train = new Train(timer.stream, world);
 var personList = [ new Person(timer.stream, input, world, world.originCell) ]
 var view = new View(timer.stream, personList, train, platform);
 

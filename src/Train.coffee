@@ -6,7 +6,7 @@ CRAWL_DISTANCE = 0.3
 CRAWL_SPEED = 0.01
 
 module.exports = class Train
-  constructor: (@_timerStream) ->
+  constructor: (@_timerStream, @_physicsWorld) ->
     @_isDocked = false
     @_isCrawling = false
     @_trackPosition = -10
@@ -41,12 +41,24 @@ module.exports = class Train
         else
           # crawling up to a stop
           if @_trackPosition is 0
-            @_isDocked = true
+            @_dock()
           else if @_trackPositionDelta / TIME_STEP < CRAWL_SPEED
             # ensure minimal speed
             @_accel = 0.01
           else
             @_accel = 0
+
+  _dock: ->
+    if @_isDocked
+      throw new Error 'already docked'
+
+    @_isDocked = true
+
+    doorPlatformCell = @_physicsWorld.originCell._up # @todo proper interface
+    @_doorCell = @_physicsWorld.extrudeLR(doorPlatformCell, 2, -1)._down
+    @_physicsWorld.extrudeLR @_doorCell, 2, -5
+    @_physicsWorld.extrudeUD @_doorCell._left, -4, -1
+    @_physicsWorld.extrudeUD @_doorCell._left._up, -4, 1
 
   _performTimeStep: ->
     # apply inertia

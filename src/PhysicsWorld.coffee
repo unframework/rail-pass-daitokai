@@ -65,6 +65,14 @@ module.exports = class PhysicsWorld
         cellRow[cellRow.length - 1]
 
     extrudeUD: (cell, width, dy) ->
+        if width < 0
+            width = -width
+
+            count = width
+            while count > 1
+                count -= 1
+                cell = cell._left
+
         cellRow = [ cell ]
 
         while cellRow.length < width

@@ -6,7 +6,7 @@ FlatShader = require('./FlatShader.coffee')
 RoundedVoxelMesh = require('./RoundedVoxelMesh.coffee')
 
 voxelURL = 'http://voxelbuilder.com/edit.html#C/2ecc713498db34495ee67e22ecf0f1000000:A/YhUhWhhSfSfWhiSfSfWhhUhSfUhWffWfhWffUfUeUhWhfUhWhhefciUhWfeUhUhShShSdSkUhSfSfSfSfWhhShShUhSfSfWhheiehUhWffUhSfUf'
-voxelMesh = new RoundedVoxelMesh voxelURL, 0.25
+voxelMesh = new RoundedVoxelMesh voxelURL, 0.15
 
 module.exports = class PersonRenderer
   constructor: (@_gl) ->
