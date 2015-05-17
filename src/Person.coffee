@@ -6,7 +6,13 @@ module.exports = class Person
 
     @orientation = 0
 
+    @lastKnownPosition = vec2.create()
+    @walkCycle = 0
+
     @_timerStream.on 'elapsed', (elapsedSeconds) =>
+      @walkCycle = (@walkCycle + vec2.distance(@lastKnownPosition, @_movable.position) * 2) % 1
+      vec2.copy @lastKnownPosition, @_movable.position
+
       vec2.set @_movable.walk, 0, 0
 
       if @_input

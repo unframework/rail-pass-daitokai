@@ -155,7 +155,7 @@ module.exports = class PhysicsWorld
             m._cell = newCell
 
     _performTimeStep: ->
-        walkMax = 0.2
+        walkMax = 0.1
         nd = vec2.create()
         halfNudge = vec2.create()
 

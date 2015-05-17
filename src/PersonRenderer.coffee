@@ -22,6 +22,7 @@ module.exports = class PersonRenderer
     @_modelPosition = vec3.create()
     @_modelScale = vec3.fromValues(meshHeight, meshHeight, meshHeight)
     @_modelMatrix = mat4.create()
+    @_deformTopPosition = vec3.create()
     @_deformTopMatrix = mat4.create()
     @_deformBottomMatrix = mat4.create()
 
@@ -60,8 +61,6 @@ module.exports = class PersonRenderer
     @_flatShader.bind()
 
     @_gl.uniformMatrix4fv @_flatShader.cameraLocation, false, cameraMatrix
-    @_gl.uniformMatrix4fv @_flatShader.deformTopLocation, false, @_deformTopMatrix
-    @_gl.uniformMatrix4fv @_flatShader.deformBottomLocation, false, @_deformBottomMatrix
 
     @_gl.bindTexture @_gl.TEXTURE_2D, @_meshTexture
     @_gl.uniform1i(@_flatShader.textureLocation, 0)
@@ -79,6 +78,17 @@ module.exports = class PersonRenderer
     mat4.translate(@_modelMatrix, @_modelMatrix, @_modelPosition)
     mat4.rotate(@_modelMatrix, @_modelMatrix, person.orientation, @_up)
     mat4.scale(@_modelMatrix, @_modelMatrix, @_modelScale)
+
+    walkCycleAngle = person.walkCycle * Math.PI * 2
+    vec3.set(@_deformTopPosition, 0, Math.sin(walkCycleAngle) * 0.01, 0)
+
+    mat4.identity(@_deformTopMatrix)
+    mat4.translate(@_deformTopMatrix, @_deformTopMatrix, @_deformTopPosition)
+    @_gl.uniformMatrix4fv @_flatShader.deformTopLocation, false, @_deformTopMatrix
+    @_gl.uniformMatrix4fv @_flatShader.deformBottomLocation, false, @_deformBottomMatrix
+
+    mat4.identity(@_deformBottomMatrix)
+    mat4.rotateZ(@_deformBottomMatrix, @_deformBottomMatrix, -Math.sin(walkCycleAngle) * 0.05)
 
     @_gl.uniform4fv @_flatShader.colorLocation, @_color
     @_gl.uniformMatrix4fv @_flatShader.modelLocation, false, @_modelMatrix
