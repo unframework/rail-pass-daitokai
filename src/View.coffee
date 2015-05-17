@@ -51,7 +51,7 @@ module.exports = class View
 
         @_timerStream.on 'elapsed', (elapsedSeconds) =>
           # update camera position
-          newCamDelta = vec3.fromValues(-@_personList[0]._movable.position[0], -@_personList[0]._movable.position[1], -8)
+          newCamDelta = vec3.fromValues(-@_personList[0]._movable.position[0], -@_personList[0]._movable.position[1] + 4, -8)
           vec3.subtract newCamDelta, newCamDelta, @_cameraPosition
           vec3.scale newCamDelta, newCamDelta, elapsedSeconds
 
@@ -62,7 +62,8 @@ module.exports = class View
             throw new Error 'not ready'
 
         camera = mat4.create()
-        mat4.perspective camera, 45, window.innerWidth / window.innerHeight, 1, 10
+        mat4.perspective camera, 45, window.innerWidth / window.innerHeight, 1, 20
+        mat4.rotateX camera, camera, -0.5
         mat4.translate camera, camera, @_cameraPosition
 
         @_platformRenderer.draw camera, @_trainPlatform
