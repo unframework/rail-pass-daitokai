@@ -1,12 +1,12 @@
+fs = require('fs')
 vec3 = require('gl-matrix').vec3
 vec4 = require('gl-matrix').vec4
 mat4 = require('gl-matrix').mat4
 
 FlatShader = require('./FlatShader.coffee')
-RoundedVoxelMesh = require('./RoundedVoxelMesh.coffee')
+OBJLoader = require('./OBJLoader.coffee')
 
-voxelURL = 'http://voxelbuilder.com/edit.html#C/2ecc713498db34495ee67e22ecf0f1000000:A/YhUhWhhSfSfWhiSfSfWhhUhSfUhWffWfhWffUfUeUhWhfUhWhhefciUhWfeUhUhShShSdSkUhSfSfSfSfWhhShShUhSfSfWhheiehUhWffUhSfUf'
-voxelMesh = new RoundedVoxelMesh voxelURL, 0.15
+meshPromise = new OBJLoader.loadFromData fs.readFileSync(__dirname + '/personStanding.obj'), 1
 
 module.exports = class PersonRenderer
   constructor: (@_gl) ->
@@ -14,16 +14,22 @@ module.exports = class PersonRenderer
     @_color = vec4.fromValues(1, 1, 1, 1)
     @_up = vec3.fromValues(0, 0, 1)
 
-    @_meshBuffer = @_gl.createBuffer()
-    @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_meshBuffer
-    @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array(voxelMesh.triangleBuffer), @_gl.STATIC_DRAW
-
     @_modelPosition = vec3.create()
     @_modelMatrix = mat4.create()
 
     @_blackColor = vec4.fromValues(0, 0, 0, 1)
 
+    @whenReady = meshPromise.then (mesh) =>
+      @_meshTriangleCount = mesh.triangleCount
+
+      @_meshBuffer = @_gl.createBuffer()
+      @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_meshBuffer
+      @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array(mesh.triangleBuffer), @_gl.STATIC_DRAW
+
   draw: (cameraMatrix, person) ->
+    if !@_meshBuffer
+      throw new Error 'not ready'
+
     # general setup
     @_flatShader.bind()
 
@@ -42,4 +48,4 @@ module.exports = class PersonRenderer
     @_gl.uniform4fv @_flatShader.colorLocation, @_blackColor
     @_gl.uniformMatrix4fv @_flatShader.modelLocation, false, @_modelMatrix
 
-    @_gl.drawArrays @_gl.TRIANGLES, 0, voxelMesh.triangleCount * 3
+    @_gl.drawArrays @_gl.TRIANGLES, 0, @_meshTriangleCount * 3

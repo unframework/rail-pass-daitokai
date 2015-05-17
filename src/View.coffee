@@ -42,6 +42,7 @@ module.exports = class View
 
         Promise.join(
             @_platformRenderer.whenReady
+            @_personRenderer.whenReady
         ).then =>
             @isReady = true
 
