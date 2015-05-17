@@ -16,11 +16,11 @@ module.exports = class TrainPlatformRenderer
     @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_platformBuffer
     @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array([
       0, 0
-      4, 0
-      0, 4
-      0, 4
-      4, 0
-      4, 4
+      16, 0
+      0, 16
+      0, 16
+      16, 0
+      16, 16
     ]), @_gl.STATIC_DRAW
 
     @_platformUVBuffer = @_gl.createBuffer()
