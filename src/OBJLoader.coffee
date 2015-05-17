@@ -22,16 +22,16 @@ class OBJMesh
       v2 = mesh.vertexPositions[tri[2]]
 
       @triangleBuffer.push v0[0] * meshScale
-      @triangleBuffer.push v0[2] * meshScale
       @triangleBuffer.push v0[1] * meshScale
+      @triangleBuffer.push v0[2] * meshScale
 
       @triangleBuffer.push v1[0] * meshScale
-      @triangleBuffer.push v1[2] * meshScale
       @triangleBuffer.push v1[1] * meshScale
+      @triangleBuffer.push v1[2] * meshScale
 
       @triangleBuffer.push v2[0] * meshScale
-      @triangleBuffer.push v2[2] * meshScale
       @triangleBuffer.push v2[1] * meshScale
+      @triangleBuffer.push v2[2] * meshScale
 
 module.exports.loadFromData = (data, meshScale) ->
   new Promise (resolve) ->
