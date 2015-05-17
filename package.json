@@ -16,6 +16,7 @@
     "coffeeify": "^1.1.0",
     "gl-matrix": "^2.1.0",
     "isosurface": "^1.0.0",
+    "onecolor": "^2.5.0",
     "parse-obj": "0.0.0",
     "raf": "^2.0.4"
   }

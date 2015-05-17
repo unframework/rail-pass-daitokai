@@ -2,6 +2,7 @@ fs = require('fs')
 vec3 = require('gl-matrix').vec3
 vec4 = require('gl-matrix').vec4
 mat4 = require('gl-matrix').mat4
+color = require('onecolor')
 
 FlatTexturePersonShader = require('./FlatTexturePersonShader.coffee')
 OBJLoader = require('./OBJLoader.coffee')
@@ -29,7 +30,8 @@ module.exports = class PersonRenderer
     # mat4.rotateZ @_deformBottomMatrix, @_deformBottomMatrix, 0.2
     # mat4.rotateZ @_deformTopMatrix, @_deformTopMatrix, -0.2
 
-    @_color = vec4.fromValues(0.4, 0.4, 0.4, 1)
+    personColor = new color.HSL(Math.random(), 0.5, 0.8).rgb()
+    @_color = vec4.fromValues(personColor.red(), personColor.green(), personColor.blue(), 1)
 
     @whenReady = meshPromise.then (mesh) =>
       @_meshTriangleCount = mesh.triangleCount
