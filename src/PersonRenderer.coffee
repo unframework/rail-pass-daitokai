@@ -3,23 +3,30 @@ vec3 = require('gl-matrix').vec3
 vec4 = require('gl-matrix').vec4
 mat4 = require('gl-matrix').mat4
 
-FlatTextureShader = require('./FlatTextureShader.coffee')
+FlatTexturePersonShader = require('./FlatTexturePersonShader.coffee')
 OBJLoader = require('./OBJLoader.coffee')
 ImageLoader = require('./ImageLoader.coffee')
 
 textureImageURI = 'data:application/octet-stream;base64,' + btoa(require('fs').readFileSync(__dirname + '/person.png', 'binary'))
 textureImagePromise = ImageLoader.load textureImageURI
 
-meshPromise = new OBJLoader.loadFromData fs.readFileSync(__dirname + '/personStanding.obj'), 1
+meshHeight = 1.35
+meshPromise = new OBJLoader.loadFromData fs.readFileSync(__dirname + '/personStanding.obj'), 1 / meshHeight
 
 module.exports = class PersonRenderer
   constructor: (@_gl) ->
-    @_flatShader = new FlatTextureShader @_gl
+    @_flatShader = new FlatTexturePersonShader @_gl
     @_color = vec4.fromValues(1, 1, 1, 1)
     @_up = vec3.fromValues(0, 0, 1)
 
     @_modelPosition = vec3.create()
+    @_modelScale = vec3.fromValues(meshHeight, meshHeight, meshHeight)
     @_modelMatrix = mat4.create()
+    @_deformTopMatrix = mat4.create()
+    @_deformBottomMatrix = mat4.create()
+
+    # mat4.rotateZ @_deformBottomMatrix, @_deformBottomMatrix, 0.2
+    # mat4.rotateZ @_deformTopMatrix, @_deformTopMatrix, -0.2
 
     @_color = vec4.fromValues(0.4, 0.4, 0.4, 1)
 
@@ -53,6 +60,8 @@ module.exports = class PersonRenderer
     @_flatShader.bind()
 
     @_gl.uniformMatrix4fv @_flatShader.cameraLocation, false, cameraMatrix
+    @_gl.uniformMatrix4fv @_flatShader.deformTopLocation, false, @_deformTopMatrix
+    @_gl.uniformMatrix4fv @_flatShader.deformBottomLocation, false, @_deformBottomMatrix
 
     @_gl.bindTexture @_gl.TEXTURE_2D, @_meshTexture
     @_gl.uniform1i(@_flatShader.textureLocation, 0)
@@ -69,6 +78,7 @@ module.exports = class PersonRenderer
     mat4.identity(@_modelMatrix)
     mat4.translate(@_modelMatrix, @_modelMatrix, @_modelPosition)
     mat4.rotate(@_modelMatrix, @_modelMatrix, person.orientation, @_up)
+    mat4.scale(@_modelMatrix, @_modelMatrix, @_modelScale)
 
     @_gl.uniform4fv @_flatShader.colorLocation, @_color
     @_gl.uniformMatrix4fv @_flatShader.modelLocation, false, @_modelMatrix
