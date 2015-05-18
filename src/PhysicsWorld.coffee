@@ -142,6 +142,16 @@ module.exports = class PhysicsWorld
 
         m
 
+    updateMovablePosition: (movable, delta) ->
+        vec2.add movable.position, movable.position, delta
+        vec2.add movable._nposition, movable._nposition, delta
+
+        while true
+            oldCell = movable._cell
+            @_updateMovableCell movable
+            if oldCell is movable._cell
+                break
+
     _updateMovableCell: (m) ->
         dx = m._nposition[0] - m._cell.center[0]
         dy = m._nposition[1] - m._cell.center[1]
