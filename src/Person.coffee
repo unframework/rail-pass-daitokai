@@ -1,4 +1,5 @@
 vec2 = require('gl-matrix').vec2
+vec3 = require('gl-matrix').vec3
 color = require('onecolor')
 
 module.exports = class Person
@@ -13,11 +14,11 @@ module.exports = class Person
     @lastKnownPosition = vec2.create()
     @walkCycle = 0
 
-    @riderSway = vec2.create()
-    @riderSwayVelocity = vec2.create()
+    @riderSway = vec3.create()
+    @riderSwayVelocity = vec3.create()
     @_riderSwayBalanceForce = 1.0 + Math.random() * 2
 
-    @_nd = vec2.create()
+    @_nd = vec3.create()
 
     @_timerStream.on 'elapsed', (elapsedSeconds) =>
       @walkCycle = (@walkCycle + vec2.distance(@lastKnownPosition, @_movable.position) * 2) % 1
@@ -44,19 +45,19 @@ module.exports = class Person
 
   _processRiderPhysics: (elapsedSeconds) ->
     # apply rider sway velocity
-    vec2.scale @_nd, @riderSwayVelocity, elapsedSeconds
-    vec2.add @riderSway, @riderSway, @_nd
+    vec3.scale @_nd, @riderSwayVelocity, elapsedSeconds
+    vec3.add @riderSway, @riderSway, @_nd
 
     # dampen velocity
-    delta = vec2.length @riderSwayVelocity
+    delta = vec3.length @riderSwayVelocity
 
     if delta > 0
-      vec2.scale @_nd, @riderSwayVelocity, -Math.min(delta, 0.3 * elapsedSeconds) / delta
-      vec2.add @riderSwayVelocity, @riderSwayVelocity, @_nd
+      vec3.scale @_nd, @riderSwayVelocity, -Math.min(delta, 0.3 * elapsedSeconds) / delta
+      vec3.add @riderSwayVelocity, @riderSwayVelocity, @_nd
 
     # apply spring-back to velocity (after dampening)
-    delta = vec2.length @riderSway
+    delta = vec3.length @riderSway
 
     if delta > 0
-      vec2.scale @_nd, @riderSway, -Math.min(delta, @_riderSwayBalanceForce * elapsedSeconds) / delta
-      vec2.add @riderSwayVelocity, @riderSwayVelocity, @_nd
+      vec3.scale @_nd, @riderSway, -Math.min(delta, @_riderSwayBalanceForce * elapsedSeconds) / delta
+      vec3.add @riderSwayVelocity, @riderSwayVelocity, @_nd

@@ -25,7 +25,9 @@ module.exports = class TrainCar
 
       dx = (Math.random() - 0.5) * 0.1
       dy = (Math.random() - 0.5) * 0.1
+      dz = (Math.random() - 0.5) * 0.05
 
       for r in @_riderList
         r.riderSway[0] += dx
         r.riderSway[1] += dy
+        r.riderSway[2] += dz

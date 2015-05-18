@@ -88,7 +88,7 @@ module.exports = class PersonRenderer
     vec2.transformMat2(@_sway, person.riderSway, @_swayRotation)
 
     walkCycleAngle = person.walkCycle * Math.PI * 2
-    vec3.set(@_deformTopPosition, @_sway[0], @_sway[1] + Math.sin(walkCycleAngle) * 0.01, 0)
+    vec3.set(@_deformTopPosition, @_sway[0], @_sway[1] + Math.sin(walkCycleAngle) * 0.01, person.riderSway[2])
 
     mat4.identity(@_deformTopMatrix)
     mat4.translate(@_deformTopMatrix, @_deformTopMatrix, @_deformTopPosition)

@@ -51,7 +51,7 @@ module.exports = class TrainView
         if !@isReady
             throw new Error 'not ready'
 
-        vec3.set(@_swayOffset, -@_personList[0].riderSway[0], -@_personList[0].riderSway[1], 0)
+        vec3.scale(@_swayOffset, @_personList[0].riderSway, -1)
 
         camera = mat4.create()
         mat4.perspective camera, 45, window.innerWidth / window.innerHeight, 1, 20
