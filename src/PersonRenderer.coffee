@@ -92,8 +92,7 @@ module.exports = class PersonRenderer
 
     vec4.set(@_color, person.color.red(), person.color.green(), person.color.blue(), 1)
     @_gl.uniform4fv @_flatShader.colorTopLocation, @_color
-    vec4.scale(@_color, @_color, 0.8)
-    @_color[3] = 1
+    vec4.set(@_color, person.color2.red(), person.color2.green(), person.color2.blue(), 1)
     @_gl.uniform4fv @_flatShader.colorBottomLocation, @_color
 
     @_gl.uniformMatrix4fv @_flatShader.modelLocation, false, @_modelMatrix

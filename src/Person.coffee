@@ -6,6 +6,7 @@ module.exports = class Person
     @_movable = @_physicsWorld.createMovable cell
 
     @color = new color.HSL(Math.random(), 0.8, 0.8).rgb()
+    @color2 = @color.hue(0.08, true).lightness(0.7)
 
     @orientation = 0
 
