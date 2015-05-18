@@ -28,6 +28,9 @@ module.exports = class TrainView
         @_gl.enable @_gl.DEPTH_TEST
         @_gl.depthFunc @_gl.LEQUAL
 
+        @_gl.enable @_gl.CULL_FACE
+        @_gl.cullFace @_gl.BACK
+
         @_personRenderer = new PersonRenderer @_gl
         @_trainCarRenderer = new TrainCarRenderer @_gl
 
