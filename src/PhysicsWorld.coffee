@@ -152,6 +152,13 @@ module.exports = class PhysicsWorld
             if oldCell is movable._cell
                 break
 
+        # ensure proper distances again, and copy the new positions over
+        for i in [ 0...5 ]
+            @_constrainDistances()
+
+        for m in @_movables
+            vec2.copy m.position, m._nposition
+
     _updateMovableCell: (m) ->
         dx = m._nposition[0] - m._cell.center[0]
         dy = m._nposition[1] - m._cell.center[1]
