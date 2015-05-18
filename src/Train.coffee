@@ -54,11 +54,11 @@ module.exports = class Train
 
     @_isDocked = true
 
-    doorPlatformCell = @_physicsWorld.originCell._up # @todo proper interface
-    @_doorCell = @_physicsWorld.extrudeLR(doorPlatformCell, 2, -1)._down
-    @_physicsWorld.extrudeLR @_doorCell, 2, -5
-    @_physicsWorld.extrudeUD @_doorCell._left, -4, -1
-    @_physicsWorld.extrudeUD @_doorCell._left._up, -4, 1
+    # doorPlatformCell = @_physicsWorld.originCell._up # @todo proper interface
+    # @_doorCell = @_physicsWorld.extrudeLR(doorPlatformCell, 2, -1)._down
+    # @_physicsWorld.extrudeLR @_doorCell, 2, -5
+    # @_physicsWorld.extrudeUD @_doorCell._left, -4, -1
+    # @_physicsWorld.extrudeUD @_doorCell._left._up, -4, 1
 
   _performTimeStep: ->
     # apply inertia

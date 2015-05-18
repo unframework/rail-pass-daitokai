@@ -22,6 +22,13 @@ var train = new Train(timer.stream, world);
 var personList = [ new Person(timer.stream, input, world, world.originCell) ]
 var view = new View(timer.stream, personList, train, platform);
 
+var cell = world.originCell._up;
+while(personList.length < 1) {
+    console.log(personList.length);
+    personList.push(new Person(timer.stream, null, world, cell));
+    cell = cell._up;
+}
+
 requestAnimationFrame(function (time) {
     var renderer = arguments.callee;
 
