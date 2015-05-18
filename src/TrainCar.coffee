@@ -5,7 +5,16 @@ module.exports = class TrainCar
     @_riderList = []
 
     @_physicsWorld.extrudeLR @_physicsWorld.originCell, 1, 3
-    cell = @_physicsWorld.extrudeUD @_physicsWorld.originCell, 4, 6 * 2 - 1
+    @_physicsWorld.extrudeUD @_physicsWorld.originCell, 4, 5 + 6 * 2 - 1
+    @_physicsWorld.extrudeUD @_physicsWorld.originCell, 4, -5
+
+    firstDoorLeftCell = @_physicsWorld.originCell._down._down
+    @_physicsWorld.extrudeLR firstDoorLeftCell, 4, -1
+    @_physicsWorld.extrudeLR firstDoorLeftCell._right._right._right, 4, 1
+
+    secondDoorLeftCell = firstDoorLeftCell._up._up._up._up._up._up._up._up._up._up._up._up
+    @_physicsWorld.extrudeLR secondDoorLeftCell, 4, -1
+    @_physicsWorld.extrudeLR secondDoorLeftCell._right._right._right, 4, 1
 
     @_joltTimer = 0
 
