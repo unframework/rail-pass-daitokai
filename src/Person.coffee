@@ -15,6 +15,7 @@ module.exports = class Person
 
     @riderSway = vec2.create()
     @riderSwayVelocity = vec2.create()
+    @_riderSwayBalanceForce = 1.0 + Math.random() * 2
 
     @_nd = vec2.create()
 
@@ -50,12 +51,12 @@ module.exports = class Person
     delta = vec2.length @riderSwayVelocity
 
     if delta > 0
-      vec2.scale @_nd, @riderSwayVelocity, -Math.min(delta, 1.3 * elapsedSeconds) / delta
+      vec2.scale @_nd, @riderSwayVelocity, -Math.min(delta, 0.3 * elapsedSeconds) / delta
       vec2.add @riderSwayVelocity, @riderSwayVelocity, @_nd
 
     # apply spring-back to velocity (after dampening)
     delta = vec2.length @riderSway
 
     if delta > 0
-      vec2.scale @_nd, @riderSway, -Math.min(delta, 2.5 * elapsedSeconds) / delta
+      vec2.scale @_nd, @riderSway, -Math.min(delta, @_riderSwayBalanceForce * elapsedSeconds) / delta
       vec2.add @riderSwayVelocity, @riderSwayVelocity, @_nd
