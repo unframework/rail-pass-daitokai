@@ -21,6 +21,14 @@ module.exports = class PhysicsWorld
         @_movables = []
 
     extrudeLR: (cell, height, dx) ->
+        if height < 0
+            height = -height
+
+            count = height
+            while count > 1
+                count -= 1
+                cell = cell._down
+
         cellRow = [ cell ]
 
         while cellRow.length < height
