@@ -85,10 +85,10 @@ module.exports = class PersonRenderer
     mat4.identity(@_deformTopMatrix)
     mat4.translate(@_deformTopMatrix, @_deformTopMatrix, @_deformTopPosition)
     @_gl.uniformMatrix4fv @_flatShader.deformTopLocation, false, @_deformTopMatrix
-    @_gl.uniformMatrix4fv @_flatShader.deformBottomLocation, false, @_deformBottomMatrix
 
     mat4.identity(@_deformBottomMatrix)
     mat4.rotateZ(@_deformBottomMatrix, @_deformBottomMatrix, -Math.sin(walkCycleAngle) * 0.05)
+    @_gl.uniformMatrix4fv @_flatShader.deformBottomLocation, false, @_deformBottomMatrix
 
     vec4.set(@_color, person.color.red(), person.color.green(), person.color.blue(), 1)
     @_gl.uniform4fv @_flatShader.colorTopLocation, @_color
