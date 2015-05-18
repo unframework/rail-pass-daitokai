@@ -53,8 +53,7 @@ module.exports = class FlatTexturePersonShader
     @colorBottomLocation = @_gl.getUniformLocation(@_program, 'colorBottom')
     @textureLocation = @_gl.getUniformLocation(@_program, 'texture')
 
-    @_gl.enableVertexAttribArray @positionLocation
-    @_gl.enableVertexAttribArray @uvPositionLocation
-
   bind: ->
     @_gl.useProgram @_program
+    @_gl.enableVertexAttribArray @positionLocation
+    @_gl.enableVertexAttribArray @uvPositionLocation

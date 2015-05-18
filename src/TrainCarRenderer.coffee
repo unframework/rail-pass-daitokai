@@ -37,7 +37,7 @@ module.exports = class TrainCarRenderer
         @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array(capMesh.triangleBuffer), @_gl.STATIC_DRAW
 
   draw: (cameraMatrix, car) ->
-    if !@_wallMeshBuffer
+    if !@_wallMeshBuffer or !@_capMeshBuffer
       throw new Error 'not ready'
 
     # general setup

@@ -40,7 +40,6 @@ module.exports = class GradientShader
     @colorTopLocation = @_gl.getUniformLocation(@_program, 'colorTop')
     @colorBottomLocation = @_gl.getUniformLocation(@_program, 'colorBottom')
 
-    @_gl.enableVertexAttribArray @positionLocation
-
   bind: ->
     @_gl.useProgram @_program
+    @_gl.enableVertexAttribArray @positionLocation
