@@ -29,12 +29,12 @@ module.exports = class TrainCar
 
   _update: (elapsed) ->
     @_joltTimer += elapsed
-    if @_joltTimer > 2
-      @_joltTimer -= 2
+    if @_joltTimer > 1
+      @_joltTimer -= 1
 
-      dx = (Math.random() - 0.5) * 1
-      dy = (Math.random() - 0.5) * 1
-      dz = (Math.random() - 0.5) * 0.5
+      dx = (Math.random() - 0.5) * 0.7
+      dy = (Math.random() - 0.5) * 0.05
+      dz = (Math.random() - 0.5) * 0.1
 
       for r in @_riderList
         r.riderSwayVelocity[0] += dx
