@@ -175,6 +175,46 @@ module.exports = class PhysicsWorld
     _performTimeStep: ->
         walkMax = 0.1
         nd = vec2.create()
+
+        for m in @_movables
+            # Verlet inertia
+            vec2.add m._nposition, m.position, m._tv
+
+            # apply walk
+            # maximum new displacement
+            # NOTE: if already moving faster than walk-speed, we preserve that
+            maxD = Math.max(vec2.length(m._tv), walkMax * TIME_STEP);
+
+            vec2.scale nd, m.walk, TIME_STEP * TIME_STEP
+            vec2.add m._nposition, m._nposition, nd
+
+            # constrain new displacement to our maximum
+            vec2.subtract nd, m._nposition, m.position
+            d = vec2.length nd
+            if(d > maxD)
+                vec2.scale nd, nd, (maxD - d) / d
+                vec2.add m._nposition, m._nposition, nd
+
+            @_updateMovableCell m
+
+        @_constrainDistances()
+
+        for m in @_movables
+            # save speed delta
+            vec2.subtract m._tv, m._nposition, m.position
+
+            # apply friction
+            ntv = vec2.length m._tv
+
+            if ntv > 0
+                subtract = Math.min(ntv, 0.05 * TIME_STEP * TIME_STEP);
+                vec2.scale m._tv, m._tv, 1 - subtract / ntv
+
+            # update position
+            vec2.copy m.position, m._nposition
+
+    _constrainDistances: ->
+        nd = vec2.create()
         halfNudge = vec2.create()
 
         restoreDistance = (a, b) =>
@@ -252,27 +292,6 @@ module.exports = class PhysicsWorld
                         # @todo deal with overlapping cell graph
                         ensureDistanceFrom m, m._cell.origin[0] + CELL_SIZE, m._cell.origin[1] + CELL_SIZE
 
-        for m in @_movables
-            # Verlet inertia
-            vec2.add m._nposition, m.position, m._tv
-
-            # apply walk
-            # maximum new displacement
-            # NOTE: if already moving faster than walk-speed, we preserve that
-            maxD = Math.max(vec2.length(m._tv), walkMax * TIME_STEP);
-
-            vec2.scale nd, m.walk, TIME_STEP * TIME_STEP
-            vec2.add m._nposition, m._nposition, nd
-
-            # constrain new displacement to our maximum
-            vec2.subtract nd, m._nposition, m.position
-            d = vec2.length nd
-            if(d > maxD)
-                vec2.scale nd, nd, (maxD - d) / d
-                vec2.add m._nposition, m._nposition, nd
-
-            @_updateMovableCell m
-
         for a in @_movables
             for b in @_movables
                 if a is b
@@ -282,19 +301,7 @@ module.exports = class PhysicsWorld
                 restoreDistance a, b
 
         for m in @_movables
-            # enforce being in-bounds
+            # enforce being in-bounds as a last thing
             collideWithCells m
             @_updateMovableCell m
 
-            # save speed delta
-            vec2.subtract m._tv, m._nposition, m.position
-
-            # apply friction
-            ntv = vec2.length m._tv
-
-            if ntv > 0
-                subtract = Math.min(ntv, 0.05 * TIME_STEP * TIME_STEP);
-                vec2.scale m._tv, m._tv, 1 - subtract / ntv
-
-            # update position
-            vec2.copy m.position, m._nposition
