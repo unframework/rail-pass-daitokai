@@ -7,13 +7,17 @@ module.exports = class FlatTexturePersonShader
         'uniform mat4 model;'
         'uniform mat4 deformTop;'
         'uniform mat4 deformBottom;'
+        'uniform mediump vec4 colorTop;'
+        'uniform mediump vec4 colorBottom;'
         'attribute vec4 position;'
         'attribute vec2 uvPosition;'
         'varying vec2 uv;'
+        'varying vec4 color;'
         'void main() {'
         'vec4 deformedTop = deformTop * position;'
         'vec4 deformedBottom = deformBottom * position;'
         'gl_Position = camera * model * mix(deformedBottom, deformedTop, position.z);'
+        'color = mix(colorBottom, colorTop, position.z);'
         'uv = uvPosition;'
         '}'
     ].join ''
@@ -21,7 +25,14 @@ module.exports = class FlatTexturePersonShader
     # console.log(@_gl.getShaderInfoLog(vertexShader))
 
     fragmentShader = @_gl.createShader(@_gl.FRAGMENT_SHADER)
-    @_gl.shaderSource fragmentShader, 'uniform mediump vec4 color; varying mediump vec2 uv; uniform sampler2D texture; void main() { gl_FragColor = texture2D(texture, uv) * color; }'
+    @_gl.shaderSource fragmentShader, [
+        'varying mediump vec4 color;'
+        'varying mediump vec2 uv;'
+        'uniform sampler2D texture;'
+        'void main() {'
+        'gl_FragColor = texture2D(texture, uv) * color;'
+        '}'
+    ].join ''
     @_gl.compileShader fragmentShader
     # console.log(@_gl.getShaderInfoLog(fragmentShader))
 
@@ -38,7 +49,8 @@ module.exports = class FlatTexturePersonShader
     @cameraLocation = @_gl.getUniformLocation(@_program, 'camera')
     @uvPositionLocation = @_gl.getAttribLocation(@_program, 'uvPosition')
     @positionLocation = @_gl.getAttribLocation(@_program, 'position')
-    @colorLocation = @_gl.getUniformLocation(@_program, 'color')
+    @colorTopLocation = @_gl.getUniformLocation(@_program, 'colorTop')
+    @colorBottomLocation = @_gl.getUniformLocation(@_program, 'colorBottom')
     @textureLocation = @_gl.getUniformLocation(@_program, 'texture')
 
     @_gl.enableVertexAttribArray @positionLocation

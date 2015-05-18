@@ -72,7 +72,6 @@ module.exports = class PersonRenderer
     @_gl.vertexAttribPointer @_flatShader.positionLocation, 3, @_gl.FLOAT, false, 0, 0
 
     # body
-    vec4.set(@_color, person.color.red(), person.color.green(), person.color.blue(), 1)
     vec3.set(@_modelPosition, person._movable.position[0], person._movable.position[1], 0)
 
     mat4.identity(@_modelMatrix)
@@ -91,7 +90,12 @@ module.exports = class PersonRenderer
     mat4.identity(@_deformBottomMatrix)
     mat4.rotateZ(@_deformBottomMatrix, @_deformBottomMatrix, -Math.sin(walkCycleAngle) * 0.05)
 
-    @_gl.uniform4fv @_flatShader.colorLocation, @_color
+    vec4.set(@_color, person.color.red(), person.color.green(), person.color.blue(), 1)
+    @_gl.uniform4fv @_flatShader.colorTopLocation, @_color
+    vec4.scale(@_color, @_color, 0.8)
+    @_color[3] = 1
+    @_gl.uniform4fv @_flatShader.colorBottomLocation, @_color
+
     @_gl.uniformMatrix4fv @_flatShader.modelLocation, false, @_modelMatrix
 
     @_gl.drawArrays @_gl.TRIANGLES, 0, @_meshTriangleCount * 3
