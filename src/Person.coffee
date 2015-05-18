@@ -13,9 +13,16 @@ module.exports = class Person
     @lastKnownPosition = vec2.create()
     @walkCycle = 0
 
+    @riderSway = vec2.create()
+    @riderSwayVelocity = vec2.create()
+
+    @_nd = vec2.create()
+
     @_timerStream.on 'elapsed', (elapsedSeconds) =>
       @walkCycle = (@walkCycle + vec2.distance(@lastKnownPosition, @_movable.position) * 2) % 1
       vec2.copy @lastKnownPosition, @_movable.position
+
+      @_processRiderPhysics(elapsedSeconds)
 
       vec2.set @_movable.walk, 0, 0
 
@@ -33,3 +40,22 @@ module.exports = class Person
 
         if @_movable.walk[0] isnt 0 or @_movable.walk[1] isnt 0
           @orientation = Math.atan2 @_movable.walk[1], @_movable.walk[0]
+
+  _processRiderPhysics: (elapsedSeconds) ->
+    # apply rider sway velocity
+    vec2.scale @_nd, @riderSwayVelocity, elapsedSeconds
+    vec2.add @riderSway, @riderSway, @_nd
+
+    # dampen velocity
+    delta = vec2.length @riderSwayVelocity
+
+    if delta > 0
+      vec2.scale @_nd, @riderSwayVelocity, -Math.min(delta, 1.3 * elapsedSeconds) / delta
+      vec2.add @riderSwayVelocity, @riderSwayVelocity, @_nd
+
+    # apply spring-back to velocity (after dampening)
+    delta = vec2.length @riderSway
+
+    if delta > 0
+      vec2.scale @_nd, @riderSway, -Math.min(delta, 2.5 * elapsedSeconds) / delta
+      vec2.add @riderSwayVelocity, @riderSwayVelocity, @_nd

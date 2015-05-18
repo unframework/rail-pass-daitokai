@@ -26,6 +26,10 @@ while(personList.length < 4) {
     cell = cell._up;
 }
 
+personList.forEach(function (p) {
+    car.addRider(p);
+});
+
 requestAnimationFrame(function (time) {
     timer.processTime(time);
     view.draw();

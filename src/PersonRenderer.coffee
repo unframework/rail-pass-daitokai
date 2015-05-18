@@ -1,6 +1,8 @@
 fs = require('fs')
+vec2 = require('gl-matrix').vec2
 vec3 = require('gl-matrix').vec3
 vec4 = require('gl-matrix').vec4
+mat2 = require('gl-matrix').mat2
 mat4 = require('gl-matrix').mat4
 
 FlatTexturePersonShader = require('./FlatTexturePersonShader.coffee')
@@ -25,6 +27,8 @@ module.exports = class PersonRenderer
     @_deformTopPosition = vec3.create()
     @_deformTopMatrix = mat4.create()
     @_deformBottomMatrix = mat4.create()
+    @_sway = vec2.create()
+    @_swayRotation = mat2.create()
 
     # mat4.rotateZ @_deformBottomMatrix, @_deformBottomMatrix, 0.2
     # mat4.rotateZ @_deformTopMatrix, @_deformTopMatrix, -0.2
@@ -79,8 +83,12 @@ module.exports = class PersonRenderer
     mat4.rotate(@_modelMatrix, @_modelMatrix, person.orientation, @_up)
     mat4.scale(@_modelMatrix, @_modelMatrix, @_modelScale)
 
+    mat2.identity(@_swayRotation)
+    mat2.rotate(@_swayRotation, @_swayRotation, person.orientation)
+    vec2.transformMat2(@_sway, person.riderSway, @_swayRotation)
+
     walkCycleAngle = person.walkCycle * Math.PI * 2
-    vec3.set(@_deformTopPosition, 0, Math.sin(walkCycleAngle) * 0.01, 0)
+    vec3.set(@_deformTopPosition, @_sway[0], @_sway[1] + Math.sin(walkCycleAngle) * 0.01, 0)
 
     mat4.identity(@_deformTopMatrix)
     mat4.translate(@_deformTopMatrix, @_deformTopMatrix, @_deformTopPosition)
