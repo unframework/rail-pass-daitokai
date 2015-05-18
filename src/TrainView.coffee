@@ -4,6 +4,7 @@ vec3 = require('gl-matrix').vec3
 vec4 = require('gl-matrix').vec4
 mat4 = require('gl-matrix').mat4
 
+TrainCarRenderer = require('./TrainCarRenderer.coffee')
 PersonRenderer = require('./PersonRenderer.coffee')
 
 createCanvas = ->
@@ -28,9 +29,11 @@ module.exports = class TrainView
         @_gl.depthFunc @_gl.LEQUAL
 
         @_personRenderer = new PersonRenderer @_gl
+        @_trainCarRenderer = new TrainCarRenderer @_gl
 
         Promise.join(
             @_personRenderer.whenReady
+            @_trainCarRenderer.whenReady
         ).then =>
             @isReady = true
 
@@ -58,6 +61,8 @@ module.exports = class TrainView
         mat4.rotateX camera, camera, -1.1
         mat4.translate camera, camera, @_cameraPosition
         mat4.translate camera, camera, @_swayOffset
+
+        @_trainCarRenderer.draw camera, null
 
         for person in @_personList
             @_personRenderer.draw camera, person
