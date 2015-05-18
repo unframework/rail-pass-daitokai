@@ -23,11 +23,11 @@ module.exports = class TrainCar
     if @_joltTimer > 2
       @_joltTimer -= 2
 
-      dx = (Math.random() - 0.5) * 0.1
-      dy = (Math.random() - 0.5) * 0.1
-      dz = (Math.random() - 0.5) * 0.05
+      dx = (Math.random() - 0.5) * 1
+      dy = (Math.random() - 0.5) * 1
+      dz = (Math.random() - 0.5) * 0.5
 
       for r in @_riderList
-        r.riderSway[0] += dx
-        r.riderSway[1] += dy
-        r.riderSway[2] += dz
+        r.riderSwayVelocity[0] += dx
+        r.riderSwayVelocity[1] += dy
+        r.riderSwayVelocity[2] += dz
