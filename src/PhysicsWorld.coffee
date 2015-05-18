@@ -171,7 +171,7 @@ module.exports = class PhysicsWorld
             vec2.subtract nd, b._nposition, a._nposition
             d2 = vec2.squaredLength nd
 
-            if d2 < CELL_SIZE
+            if d2 < CELL_SIZE * CELL_SIZE
                 dist = Math.sqrt d2
 
                 nudgeDist = dist - CELL_SIZE
