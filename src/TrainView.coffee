@@ -37,6 +37,8 @@ module.exports = class TrainView
         @_cameraPosition = vec3.create()
         vec3.set @_cameraPosition, 0, 0, -8
 
+        @_swayOffset = vec3.create()
+
         @_timerStream.on 'elapsed', (elapsedSeconds) =>
           # update camera position
           newCamDelta = vec3.fromValues(-@_personList[0]._movable.position[0], -@_personList[0]._movable.position[1] + 4, -3)
@@ -49,10 +51,13 @@ module.exports = class TrainView
         if !@isReady
             throw new Error 'not ready'
 
+        vec3.set(@_swayOffset, -@_personList[0].riderSway[0], -@_personList[0].riderSway[1], 0)
+
         camera = mat4.create()
         mat4.perspective camera, 45, window.innerWidth / window.innerHeight, 1, 20
         mat4.rotateX camera, camera, -1.1
         mat4.translate camera, camera, @_cameraPosition
+        mat4.translate camera, camera, @_swayOffset
 
         for person in @_personList
             @_personRenderer.draw camera, person
