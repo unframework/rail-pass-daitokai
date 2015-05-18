@@ -1,8 +1,11 @@
 vec2 = require('gl-matrix').vec2
+color = require('onecolor')
 
 module.exports = class Person
   constructor: (@_timerStream, @_input, @_physicsWorld, cell) ->
     @_movable = @_physicsWorld.createMovable cell
+
+    @color = new color.HSL(Math.random(), 0.8, 0.8).rgb()
 
     @orientation = 0
 
