@@ -20,28 +20,30 @@ module.exports = class Person
 
     @_nd = vec3.create()
 
-    @_timerStream.on 'elapsed', (elapsedSeconds) =>
-      @walkCycle = (@walkCycle + vec2.distance(@lastKnownPosition, @_movable.position) * 2) % 1
-      vec2.copy @lastKnownPosition, @_movable.position
+    @_timerStream.on 'elapsed', (elapsedSeconds) => @_update elapsedSeconds
 
-      @_processRiderPhysics(elapsedSeconds)
+  _update: (elapsedSeconds) ->
+    @walkCycle = (@walkCycle + vec2.distance(@lastKnownPosition, @_movable.position) * 2) % 1
+    vec2.copy @lastKnownPosition, @_movable.position
 
-      vec2.set @_movable.walk, 0, 0
+    @_processRiderPhysics(elapsedSeconds)
 
-      if @_input
-        walkAccel = 0.1
+    vec2.set @_movable.walk, 0, 0
 
-        if @_input.status.LEFT
-          @_movable.walk[0] -= walkAccel
-        if @_input.status.RIGHT
-          @_movable.walk[0] += walkAccel
-        if @_input.status.UP
-          @_movable.walk[1] += walkAccel
-        if @_input.status.DOWN
-          @_movable.walk[1] -= walkAccel
+    if @_input
+      walkAccel = 0.1
 
-        if @_movable.walk[0] isnt 0 or @_movable.walk[1] isnt 0
-          @orientation = Math.atan2 @_movable.walk[1], @_movable.walk[0]
+      if @_input.status.LEFT
+        @_movable.walk[0] -= walkAccel
+      if @_input.status.RIGHT
+        @_movable.walk[0] += walkAccel
+      if @_input.status.UP
+        @_movable.walk[1] += walkAccel
+      if @_input.status.DOWN
+        @_movable.walk[1] -= walkAccel
+
+      if @_movable.walk[0] isnt 0 or @_movable.walk[1] isnt 0
+        @orientation = Math.atan2 @_movable.walk[1], @_movable.walk[0]
 
   _processRiderPhysics: (elapsedSeconds) ->
     # apply rider sway velocity
