@@ -11,7 +11,7 @@ map = [
 ]
 
 module.exports = class PhysicsWorld
-    constructor: (@_timerStream, @_input) ->
+    constructor: (@_timerStream) ->
         # sample cell map
         @originCell = { origin: vec2.fromValues(0, 0), center: vec2.fromValues(CELL_HALF_SIZE, CELL_HALF_SIZE) }
 
