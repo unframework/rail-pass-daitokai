@@ -1,4 +1,5 @@
 var requestAnimationFrame = require('raf');
+var vec2 = require('gl-matrix').vec2;
 
 var Timer = require('./src/Timer.coffee');
 var PhysicsWorld = require('./src/PhysicsWorld.coffee');
@@ -20,10 +21,10 @@ var car = new TrainCar(timer.stream, world);
 var personList = [ new Person(timer.stream, input, world, world.originCell) ];
 var view = new TrainView(timer.stream, personList);
 
-var cell = world.originCell._up;
-while(personList.length < 4) {
-    personList.push(new Person(timer.stream, null, world, cell));
-    cell = cell._up;
+while(personList.length < 30) {
+    personList.push(new Person(timer.stream, null, world, world.originCell));
+    personList[personList.length - 1].orientation = (Math.random() - 0.5) * Math.PI * 2;
+    world.updateMovablePosition(personList[personList.length - 1]._movable, vec2.fromValues(Math.random() * 1.5, Math.random() * 9.5 - 2.5))
 }
 
 personList.forEach(function (p) {
