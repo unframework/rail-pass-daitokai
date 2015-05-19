@@ -22,7 +22,7 @@ module.exports = class PersonRenderer
     @_up = vec3.fromValues(0, 0, 1)
 
     @_modelPosition = vec3.create()
-    @_modelScale = vec3.fromValues(meshHeight, meshHeight, meshHeight)
+    @_modelScale = vec3.create()
     @_modelMatrix = mat4.create()
     @_deformTopPosition = vec3.create()
     @_deformTopMatrix = mat4.create()
@@ -77,6 +77,7 @@ module.exports = class PersonRenderer
 
     # body
     vec3.set(@_modelPosition, person._movable.position[0], person._movable.position[1], 0)
+    vec3.set(@_modelScale, meshHeight, meshHeight, person.height)
 
     mat4.identity(@_modelMatrix)
     mat4.translate(@_modelMatrix, @_modelMatrix, @_modelPosition)
