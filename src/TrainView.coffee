@@ -47,7 +47,7 @@ module.exports = class TrainView
 
         @_timerStream.on 'elapsed', (elapsedSeconds) =>
           # update camera position
-          newCamDelta = vec3.fromValues(-@_personList[0]._movable.position[0], -@_personList[0]._movable.position[1] + 4, -3)
+          newCamDelta = vec3.fromValues(-@_personList[0]._movable.position[0] * 0.5 - 1.5 * 0.5, -@_personList[0]._movable.position[1] + 2, -2)
           vec3.subtract newCamDelta, newCamDelta, @_cameraPosition
           vec3.scale newCamDelta, newCamDelta, elapsedSeconds
 
@@ -60,8 +60,9 @@ module.exports = class TrainView
         vec3.scale(@_swayOffset, @_personList[0].riderSway, -1)
 
         camera = mat4.create()
-        mat4.perspective camera, 45, window.innerWidth / window.innerHeight, 1, 20
-        mat4.rotateX camera, camera, -1.1
+        mat4.perspective camera, 45, window.innerWidth / window.innerHeight, 0.1, 20
+        mat4.rotateX camera, camera, -Math.atan2(@_personList[0]._movable.position[1] + @_cameraPosition[1], -@_cameraPosition[2] - 1.5)
+        mat4.rotateZ camera, camera, Math.atan2(@_personList[0]._movable.position[0] + @_cameraPosition[0], @_personList[0]._movable.position[1] + @_cameraPosition[1])
         mat4.translate camera, camera, @_cameraPosition
         mat4.translate camera, camera, @_swayOffset
 
