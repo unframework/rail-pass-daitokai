@@ -12,7 +12,7 @@ ImageLoader = require('./ImageLoader.coffee')
 textureImageURI = 'data:application/octet-stream;base64,' + btoa(require('fs').readFileSync(__dirname + '/person.png', 'binary'))
 textureImagePromise = ImageLoader.load textureImageURI
 
-meshHeight = 1.35
+meshHeight = 1.5
 meshPromise = new OBJLoader.loadFromData fs.readFileSync(__dirname + '/personStanding.obj'), 1 / meshHeight
 
 module.exports = class PersonRenderer
