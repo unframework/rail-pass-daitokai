@@ -6,7 +6,7 @@ mat4 = require('gl-matrix').mat4
 GradientShader = require('./GradientShader.coffee')
 OBJLoader = require('./OBJLoader.coffee')
 
-meshHeight = 2.4
+meshHeight = 2.5
 wallMeshPromise = new OBJLoader.loadFromData fs.readFileSync(__dirname + '/trainCarWall.obj'), 1 / meshHeight
 capMeshPromise = new OBJLoader.loadFromData fs.readFileSync(__dirname + '/trainCarCap.obj'), 1 / meshHeight
 
