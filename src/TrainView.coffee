@@ -45,9 +45,19 @@ module.exports = class TrainView
 
         @_swayOffset = vec3.create()
 
+        @targetPerson = @_personList[0]
+
         @_timerStream.on 'elapsed', (elapsedSeconds) =>
           # update camera position
-          newCamDelta = vec3.fromValues(-@_personList[0]._movable.position[0] * 0.5 - 1.5 * 0.5, -@_personList[0]._movable.position[1] + 2, -2)
+          MIN_CAM_Y = -2.3
+          MIN_TARGET_Y = -2.5 + 0.5 / 2
+          CAM_FOLLOW_Y = 2
+
+          newCamDelta = vec3.fromValues(-@targetPerson._movable.position[0] * 0.5 - 1 * 0.5, -@targetPerson._movable.position[1] + CAM_FOLLOW_Y, -2)
+          if newCamDelta[1] > -MIN_CAM_Y
+            newCamDelta[2] -= 0.5 * (newCamDelta[1] + MIN_CAM_Y) / (CAM_FOLLOW_Y + MIN_TARGET_Y - MIN_CAM_Y)
+            newCamDelta[1] = -MIN_CAM_Y
+
           vec3.subtract newCamDelta, newCamDelta, @_cameraPosition
           vec3.scale newCamDelta, newCamDelta, elapsedSeconds
 
@@ -61,8 +71,8 @@ module.exports = class TrainView
 
         camera = mat4.create()
         mat4.perspective camera, 45, window.innerWidth / window.innerHeight, 0.1, 20
-        mat4.rotateX camera, camera, -Math.atan2(@_personList[0]._movable.position[1] + @_cameraPosition[1], -@_cameraPosition[2] - 1.5)
-        mat4.rotateZ camera, camera, Math.atan2(@_personList[0]._movable.position[0] + @_cameraPosition[0], @_personList[0]._movable.position[1] + @_cameraPosition[1])
+        mat4.rotateX camera, camera, -Math.atan2(@targetPerson._movable.position[1] + @_cameraPosition[1], -@_cameraPosition[2] - 1.5)
+        mat4.rotateZ camera, camera, 0.3 * Math.atan2(@targetPerson._movable.position[0] + @_cameraPosition[0], @targetPerson._movable.position[1] + @_cameraPosition[1])
         mat4.translate camera, camera, @_cameraPosition
         mat4.translate camera, camera, @_swayOffset
 
