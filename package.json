@@ -14,6 +14,7 @@
     "bluebird": "^2.9.25",
     "brfs": "^1.4.0",
     "coffeeify": "^1.1.0",
+    "flickr-client": "0.0.3",
     "gl-matrix": "^2.1.0",
     "isosurface": "^1.0.0",
     "onecolor": "^2.5.0",

@@ -1,3 +1,6 @@
 .DS_Store
 
+# private config
+/flickr.js
+
 /node_modules
