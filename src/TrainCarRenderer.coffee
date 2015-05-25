@@ -55,8 +55,8 @@ module.exports = class TrainCarRenderer
     @_modelFlipScale = vec3.fromValues(-meshHeight, -meshHeight, meshHeight)
     @_modelMatrix = mat4.create()
 
-    @_color = vec4.fromValues(0.8, 0.8, 0.8, 1)
-    @_color2 = vec4.fromValues(0.6, 0.6, 0.6, 1)
+    @_color = vec4.fromValues(0.85, 0.85, 0.9, 1)
+    @_color2 = vec4.fromValues(0.3, 0.3, 0.3, 1)
 
     @_posterColor = vec4.fromValues(0.2, 0.3, 0.65, 1)
 

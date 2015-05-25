@@ -1,3 +1,4 @@
+color = require('onecolor')
 flickrClient = require('flickr-client')
 ImageLoader = require('./ImageLoader.coffee')
 
@@ -29,9 +30,14 @@ module.exports = class PosterGenerator
         @render url
 
   render: (url) ->
-    w = 64
-    h = 32
+    w = 100
+    h = 100
     maxDim = Math.max w, h
+
+    bgColor = new color.HSV(Math.random(), 0.8, 0.8).rgb()
+    bgWidth = w * (0.3 + Math.random() * 0.3)
+    bgHeight = h * (0.2 + Math.random() * 0.3)
+    tintAlpha = Math.random() * 0.3
 
     canvas = createCanvas w, h
     ctx = canvas.getContext '2d'
@@ -40,3 +46,15 @@ module.exports = class PosterGenerator
 
     ImageLoader.load(url).then (img) ->
       ctx.drawImage img, (w - maxDim) / 2, (h - maxDim) / 2, maxDim, maxDim
+      ctx.fillStyle = bgColor.alpha(tintAlpha).cssa()
+      ctx.fillRect 0, 0, w, h
+
+      ctx.save()
+      ctx.fillStyle = bgColor.cssa()
+      ctx.moveTo 0, 0
+      ctx.lineTo bgWidth, 0
+      ctx.lineTo bgWidth, bgHeight
+      ctx.lineTo 0, bgHeight
+      ctx.closePath()
+      ctx.fill()
+      ctx.restore()
