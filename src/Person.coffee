@@ -52,9 +52,9 @@ module.exports = class Person
       @_directionTimer -= elapsedSeconds
 
       if @_directionTimer <= 0
-        @_directionTimer += 3
+        @_directionTimer += 3 * (1 + Math.random())
 
-        walkDir = Math.random() * 2 * Math.PI
+        walkDir = Math.atan2((if @_movable.position[1] < 2 then 1 else -1), Math.random() - 0.5)
         @orientation = walkDir
         vec2.set @_movable.walk, Math.cos(walkDir) * 0.1, Math.sin(walkDir) * 0.1
 
