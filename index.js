@@ -23,8 +23,7 @@ var personList = [ new Person(timer.stream, input, world, world.originCell) ]
 var view = new View(timer.stream, personList, train, platform);
 
 var cell = world.originCell._up;
-while(personList.length < 1) {
-    console.log(personList.length);
+while(personList.length < 5) {
     personList.push(new Person(timer.stream, null, world, cell));
     cell = cell._up;
 }

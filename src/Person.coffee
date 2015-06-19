@@ -21,6 +21,9 @@ module.exports = class Person
 
     @_nd = vec3.create()
 
+    @_directionTimer = 0
+    @_walkDir = 0
+
     @_timerStream.on 'elapsed', (elapsedSeconds) => @_update elapsedSeconds
 
   _update: (elapsedSeconds) ->
@@ -29,9 +32,9 @@ module.exports = class Person
 
     @_processRiderPhysics(elapsedSeconds)
 
-    vec2.set @_movable.walk, 0, 0
-
     if @_input
+      vec2.set @_movable.walk, 0, 0
+
       walkAccel = 0.1
 
       if @_input.status.LEFT
@@ -45,6 +48,15 @@ module.exports = class Person
 
       if @_movable.walk[0] isnt 0 or @_movable.walk[1] isnt 0
         @orientation = Math.atan2 @_movable.walk[1], @_movable.walk[0]
+    else
+      @_directionTimer -= elapsedSeconds
+
+      if @_directionTimer <= 0
+        @_directionTimer += 3
+
+        walkDir = Math.random() * 2 * Math.PI
+        @orientation = walkDir
+        vec2.set @_movable.walk, Math.cos(walkDir) * 0.1, Math.sin(walkDir) * 0.1
 
   _processRiderPhysics: (elapsedSeconds) ->
     # apply rider sway velocity
