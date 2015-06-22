@@ -2,6 +2,15 @@ vec2 = require('gl-matrix').vec2
 vec3 = require('gl-matrix').vec3
 color = require('onecolor')
 
+angleDiff = (a1, a2) ->
+  d = a1 - a2
+  while d > Math.PI
+    d -= 2 * Math.PI
+  while d < -Math.PI
+    d += 2 * Math.PI
+
+  d
+
 module.exports = class Person
   constructor: (@_timerStream, @_input, @_physicsWorld, cell, @_personList) ->
     @_movable = @_physicsWorld.createMovable cell
@@ -20,7 +29,9 @@ module.exports = class Person
     @_riderSwayBalanceForce = 2.0 + Math.random() * 2
 
     @_nd = vec3.create()
-    @_tmpV2 = vec2.create()
+    @_tmpLookaheadPos = vec2.create()
+    @_tmpOtherDiff = vec2.create()
+    @_tmpWalkCrossVector = vec2.create()
 
     @_directionTimer = 0
     @_walkTarget = vec2.clone @_movable.position
@@ -63,20 +74,34 @@ module.exports = class Person
 
         walkDir = Math.atan2(@_walkTarget[1] - @_movable.position[1], @_walkTarget[0] - @_movable.position[0])
 
-        LOOKAHEAD_DISTANCE = 0.3
-        vec2.set @_tmpV2, Math.cos(walkDir) * LOOKAHEAD_DISTANCE, Math.sin(walkDir) * LOOKAHEAD_DISTANCE
-        vec2.add @_tmpV2, @_tmpV2, @_movable.position
+        vec2.set @_tmpWalkCrossVector, Math.sin(walkDir), -Math.cos(walkDir)
+
+        LOOKAHEAD_DISTANCE = 0.4
+        vec2.set @_tmpLookaheadPos, Math.cos(walkDir) * LOOKAHEAD_DISTANCE, Math.sin(walkDir) * LOOKAHEAD_DISTANCE
+        vec2.add @_tmpLookaheadPos, @_tmpLookaheadPos, @_movable.position
 
         # scan the rest of people and see what they're up to
         goSlow = false
+        goLeft = false
+        goRight = false
+
         for otherPerson in @_personList when otherPerson isnt this
-          if vec2.squaredDistance(@_tmpV2, otherPerson._movable.position) > 0.5 * 0.5 # @todo person size
+          if vec2.squaredDistance(@_tmpLookaheadPos, otherPerson._movable.position) > 0.5 * 0.5 # @todo person size
             continue
 
-          # if Math.abs(otherPerson.orientation - walkDir) < 0.8
-          goSlow = true
+          vec2.subtract @_tmpOtherDiff, otherPerson._movable.position, @_movable.position
+          crossPos = vec2.dot @_tmpOtherDiff, @_tmpWalkCrossVector
 
-        walkSpeed = if goSlow then 0.05 else 0.1
+          if Math.abs(angleDiff otherPerson.orientation, walkDir) > 0.6
+            goSlow = true
+
+          if crossPos < 0
+            goRight = true
+          else if crossPos > 0
+            goLeft = true
+
+        walkSpeed = 0.1
+        walkDir += ((if goLeft then 1 else 0) + (if goRight then -1 else 0)) * (if goSlow then 0.75 else 0.3)
 
         @orientation = walkDir
         vec2.set @_movable.walk, Math.cos(walkDir) * walkSpeed, Math.sin(walkDir) * walkSpeed
