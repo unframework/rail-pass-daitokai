@@ -34,7 +34,7 @@ requestAnimationFrame(function (time) {
     var renderer = arguments.callee;
 
     timer.processTime(time);
-    view.draw();
+    if (view.isReady) { view.draw(); }
 
     requestAnimationFrame(renderer);
 });

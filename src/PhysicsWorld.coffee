@@ -214,7 +214,7 @@ module.exports = class PhysicsWorld
             ntv = vec2.length m._tv
 
             if ntv > 0
-                subtract = Math.min(ntv, 0.05 * TIME_STEP * TIME_STEP);
+                subtract = Math.min(ntv, 0.03 * TIME_STEP * TIME_STEP);
                 vec2.scale m._tv, m._tv, 1 - subtract / ntv
 
             # update position
