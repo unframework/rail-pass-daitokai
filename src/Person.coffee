@@ -101,7 +101,12 @@ module.exports = class Person
             goLeft = true
 
         walkSpeed = 0.1
-        walkDir += ((if goLeft then 1 else 0) + (if goRight then -1 else 0)) * (if goSlow then 0.75 else 0.3)
+        if goLeft and goRight
+          walkSpeed = -0.1
+        else if goLeft
+          walkDir += (if goSlow then 0.75 else 0.3)
+        else if goRight
+          walkDir -= (if goSlow then 0.75 else 0.3)
 
         @orientation = walkDir
         vec2.set @_movable.walk, Math.cos(walkDir) * walkSpeed, Math.sin(walkDir) * walkSpeed
