@@ -22,7 +22,7 @@ module.exports = class Person
     @_nd = vec3.create()
 
     @_directionTimer = 0
-    @_walkDir = 0
+    @_walkTarget = vec2.clone @_movable.position
 
     @_timerStream.on 'elapsed', (elapsedSeconds) => @_update elapsedSeconds
 
@@ -49,12 +49,20 @@ module.exports = class Person
       if @_movable.walk[0] isnt 0 or @_movable.walk[1] isnt 0
         @orientation = Math.atan2 @_movable.walk[1], @_movable.walk[0]
     else
+      # update walk target
+      if vec2.squaredDistance(@_movable.position, @_walkTarget) < 0.01
+        vec2.set @_walkTarget, Math.random() * 1.5 + 0.25, (if @_movable.position[1] > 2 then 0.5 else 5.5),
+        @_directionTimer = 0
+        console.log @_walkTarget
+
+      # regular walk behaviour
       @_directionTimer -= elapsedSeconds
 
       if @_directionTimer <= 0
-        @_directionTimer += 3 * (1 + Math.random())
+        @_directionTimer += 0.2 + Math.random() * 0.1
 
-        walkDir = Math.atan2((if @_movable.position[1] < 2 then 1 else -1), Math.random() - 0.5)
+        walkDir = Math.atan2(@_walkTarget[1] - @_movable.position[1], @_walkTarget[0] - @_movable.position[0])
+
         @orientation = walkDir
         vec2.set @_movable.walk, Math.cos(walkDir) * 0.1, Math.sin(walkDir) * 0.1
 
