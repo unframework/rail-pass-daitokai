@@ -102,7 +102,7 @@ module.exports = class Person
 
         walkSpeed = 0.1
         if goLeft and goRight
-          walkSpeed = -0.1
+          walkSpeed = -0.03
         else if goLeft
           walkDir += (if goSlow then 0.75 else 0.3)
         else if goRight
