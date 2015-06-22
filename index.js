@@ -19,12 +19,14 @@ var timer = new Timer();
 var world = new PhysicsWorld(timer.stream);
 var platform = new TrainPlatform(timer.stream, world);
 var train = new Train(timer.stream, world);
-var personList = [ new Person(timer.stream, input, world, world.originCell) ]
+var personList = [];
 var view = new View(timer.stream, personList, train, platform);
+
+personList.push(new Person(timer.stream, input, world, world.originCell, personList))
 
 var cell = world.originCell._right;
 while(personList.length < 2) {
-    personList.push(new Person(timer.stream, null, world, cell));
+    personList.push(new Person(timer.stream, null, world, cell, personList));
     cell = cell._right;
 }
 
