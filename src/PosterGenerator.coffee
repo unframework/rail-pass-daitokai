@@ -1,8 +1,13 @@
 color = require('onecolor')
 flickrClient = require('flickr-client')
 ImageLoader = require('./ImageLoader.coffee')
+Promise = require('bluebird')
 
-GROUP_ID = '906615@N24' # https://www.flickr.com/groups/japanese_food_lovers/
+# to get group ID, inspect its avatar pic, the 'X@Y' portion of the URL is it, no underscores
+GROUP_ID_LIST = [
+  '906615@N24' # https://www.flickr.com/groups/japanese_food_lovers/
+  '97292664@N00' # https://www.flickr.com/groups/jlandscape/
+]
 
 createCanvas = (w, h) ->
   viewCanvas = document.createElement('canvas')
@@ -16,11 +21,20 @@ module.exports = class PosterGenerator
       key: flickrConfig.key
     }
 
-    @_flickr 'photos.search', { group_id: GROUP_ID, page: 2, per_page: 100 }, (error, response) =>
-      if (error)
-        throw new Error(error)
+    # grab several groups
+    whenPhotoListsLoaded = Promise.all (for groupId in GROUP_ID_LIST
+      new Promise (resolve, reject) =>
+        @_flickr 'photos.search', { group_id: groupId, page: 2, per_page: 50 }, (error, response) =>
+          if (error)
+            reject error
+          else
+            resolve response.photos.photo
+    )
 
-      photoList = response.photos.photo
+    # then pick from flattened set
+    whenPhotoListsLoaded.then (listOfLists) =>
+      photoList = [].concat listOfLists...
+
       count = 0
       while count < 10
         count += 1
