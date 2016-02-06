@@ -3,3 +3,20 @@
 ## Inspirations
 
 I love exploring large urban settings, with those enormous human rivers that public transit creates. This is an attempt to capture some of that experience. I am also delighted by the playful (yet earnest) creative absurdity of unusual Japanese simulators like [Densha De GO!](http://en.wikipedia.org/wiki/Densha_de_Go!) and [Neko Atsume](https://play.google.com/store/apps/details?id=jp.co.hit_point.nekoatsume&hl=en). Art inspiration is drawn from [Proteus](http://www.visitproteus.com/) and the low-poly movement.
+
+## Usage
+
+```
+npm install
+
+# platform AI experiment
+beefy index.js
+
+# running train experiment
+beefy train.js
+
+# poster generation via Flickr, need to create flickr.js first:
+# module.exports.key = '...';
+# module.exports.secret = '...';
+beefy poster.js
+```
