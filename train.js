@@ -18,11 +18,11 @@ var input = new Input({
 var timer = new Timer();
 var world = new PhysicsWorld(timer.stream, input);
 var car = new TrainCar(timer.stream, world);
-var personList = [ new Person(timer.stream, input, world, world.originCell) ];
+var personList = [ new Person(timer.stream, input, world, world.originCell, personList) ];
 var view = new TrainView(timer.stream, personList);
 
 while(personList.length < 30) {
-    personList.push(new Person(timer.stream, null, world, world.originCell));
+    personList.push(new Person(timer.stream, null, world, world.originCell, personList));
     personList[personList.length - 1].orientation = (Math.random() - 0.5) * Math.PI * 2;
     world.updateMovablePosition(personList[personList.length - 1]._movable, vec2.fromValues(Math.random() * 1.5, Math.random() * 9.5 - 2.5))
 }
@@ -33,7 +33,9 @@ personList.forEach(function (p) {
 
 requestAnimationFrame(function (time) {
     timer.processTime(time);
-    view.draw();
+    if (view.isReady) {
+        view.draw();
+    }
 
     requestAnimationFrame(arguments.callee);
 });
