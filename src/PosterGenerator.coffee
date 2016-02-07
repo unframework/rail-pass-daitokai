@@ -48,6 +48,9 @@ module.exports = class PosterGenerator
     h = 100
     maxDim = Math.max w, h
 
+    bgMidX = w * [0.333, 0.5, 0.666][Math.floor Math.random() * 3]
+    bgMidY = h * [0.333, 0.5, 0.666][Math.floor Math.random() * 3]
+
     bgColor = new color.HSV(Math.random(), 0.8, 0.8).rgb()
     bgWidth = w * (0.3 + Math.random() * 0.3)
     bgHeight = h * (0.2 + Math.random() * 0.3)
@@ -65,10 +68,10 @@ module.exports = class PosterGenerator
 
       ctx.save()
       ctx.fillStyle = bgColor.cssa()
-      ctx.moveTo 0, 0
-      ctx.lineTo bgWidth, 0
-      ctx.lineTo bgWidth, bgHeight
-      ctx.lineTo 0, bgHeight
+      ctx.moveTo bgMidX - bgWidth * 0.5, bgMidY - bgHeight * 0.5
+      ctx.lineTo bgMidX + bgWidth * 0.5, bgMidY - bgHeight * 0.5
+      ctx.lineTo bgMidX + bgWidth * 0.5, bgMidY + bgHeight * 0.5
+      ctx.lineTo bgMidX - bgWidth * 0.5, bgMidY + bgHeight * 0.5
       ctx.closePath()
       ctx.fill()
       ctx.restore()
