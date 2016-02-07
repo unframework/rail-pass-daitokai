@@ -1,7 +1,14 @@
 color = require('onecolor')
 flickrClient = require('flickr-client')
-ImageLoader = require('./ImageLoader.coffee')
+FontFaceObserver = require('fontfaceobserver')
+fonts = require('google-fonts')
 Promise = require('bluebird')
+
+ImageLoader = require('./ImageLoader.coffee')
+
+# get font going
+fonts.add { 'Source Sans Pro': [ 600 ] }
+whenFontsLoaded = new FontFaceObserver('Source Sans Pro').check()
 
 # to get group ID, inspect its avatar pic, the 'X@Y' portion of the URL is it, no underscores
 GROUP_ID_LIST = [
@@ -38,10 +45,13 @@ module.exports = class PosterGenerator
       count = 0
       while count < 10
         count += 1
-        photo = photoList.splice(Math.floor(Math.random() * photoList.length), 1)[0]
+        do =>
+          photo = photoList.splice(Math.floor(Math.random() * photoList.length), 1)[0]
 
-        url = 'https://farm' + photo.farm + '.staticflickr.com/' + photo.server + '/' + photo.id + '_' + photo.secret + '_q.jpg'
-        @render url
+          url = 'https://farm' + photo.farm + '.staticflickr.com/' + photo.server + '/' + photo.id + '_' + photo.secret + '_q.jpg'
+          whenFontsLoaded.then => @render url
+
+      null # prevent collection
 
   render: (url) ->
     w = 100
@@ -67,13 +77,13 @@ module.exports = class PosterGenerator
       ctx.fillRect 0, 0, w, h
 
       posterHeadline = 'AKIBA'
-      fontSize = 14
+      fontSize = 16
       paddingX = Math.round(4 + Math.random() * 8)
       paddingY = Math.round(2 + Math.random() * 5)
 
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.font = "#{fontSize}px Helvetica, Arial"
+      ctx.font = "#{fontSize}px 'Source Sans Pro'"
       metrics = ctx.measureText posterHeadline
 
       bgWidth = metrics.width + paddingX * 2
