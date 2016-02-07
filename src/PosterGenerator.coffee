@@ -66,6 +66,19 @@ module.exports = class PosterGenerator
       ctx.fillStyle = bgColor.alpha(tintAlpha).cssa()
       ctx.fillRect 0, 0, w, h
 
+      posterHeadline = 'AKIBA'
+      fontSize = 14
+      paddingX = Math.round(4 + Math.random() * 8)
+      paddingY = Math.round(2 + Math.random() * 5)
+
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.font = "#{fontSize}px Helvetica, Arial"
+      metrics = ctx.measureText posterHeadline
+
+      bgWidth = metrics.width + paddingX * 2
+      bgHeight = fontSize + paddingY * 2
+
       ctx.save()
       ctx.fillStyle = bgColor.cssa()
       ctx.moveTo bgMidX - bgWidth * 0.5, bgMidY - bgHeight * 0.5
@@ -74,4 +87,9 @@ module.exports = class PosterGenerator
       ctx.lineTo bgMidX - bgWidth * 0.5, bgMidY + bgHeight * 0.5
       ctx.closePath()
       ctx.fill()
+      ctx.restore()
+
+      ctx.save()
+      ctx.fillStyle = '#fff'
+      ctx.fillText posterHeadline, bgMidX, bgMidY
       ctx.restore()
