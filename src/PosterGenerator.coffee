@@ -62,8 +62,6 @@ module.exports = class PosterGenerator
     bgMidY = h * [0.333, 0.5, 0.666][Math.floor Math.random() * 3]
 
     bgColor = new color.HSV(Math.random(), 0.8, 0.8).rgb()
-    bgWidth = w * (0.3 + Math.random() * 0.3)
-    bgHeight = h * (0.2 + Math.random() * 0.3)
     tintAlpha = Math.random() * 0.3
 
     canvas = createCanvas w, h
@@ -76,10 +74,10 @@ module.exports = class PosterGenerator
       ctx.fillStyle = bgColor.alpha(tintAlpha).cssa()
       ctx.fillRect 0, 0, w, h
 
-      posterHeadline = 'AKIBA'
-      fontSize = 16
-      paddingX = Math.round(4 + Math.random() * 8)
-      paddingY = Math.round(2 + Math.random() * 5)
+      posterHeadline = '渋谷系'
+      fontSize = 14 + Math.round(Math.random() * 4) * 2
+      paddingX = Math.round((0.2 + Math.random() * 0.3) * fontSize)
+      paddingY = Math.round((0.05 + Math.random() * 0.4) * fontSize)
 
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
@@ -89,8 +87,13 @@ module.exports = class PosterGenerator
       bgWidth = metrics.width + paddingX * 2
       bgHeight = fontSize + paddingY * 2
 
+      bgMidX = Math.max(bgWidth * 0.5, bgMidX);
+      bgMidX = Math.min(w - bgWidth * 0.5, bgMidX);
+      bgMidY = Math.max(bgHeight * 0.5, bgMidY);
+      bgMidY = Math.min(w - bgHeight * 0.5, bgMidY);
+
       ctx.save()
-      ctx.fillStyle = bgColor.cssa()
+      ctx.fillStyle = bgColor.alpha(1 - Math.random() * 0.5).cssa()
       ctx.moveTo bgMidX - bgWidth * 0.5, bgMidY - bgHeight * 0.5
       ctx.lineTo bgMidX + bgWidth * 0.5, bgMidY - bgHeight * 0.5
       ctx.lineTo bgMidX + bgWidth * 0.5, bgMidY + bgHeight * 0.5
