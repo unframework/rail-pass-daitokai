@@ -54,8 +54,8 @@ module.exports = class PosterGenerator
       null # prevent collection
 
   render: (url) ->
-    w = 100
-    h = 100
+    w = 135
+    h = 75
     maxDim = Math.max w, h
 
     bgMidX = w * [0.333, 0.5, 0.666][Math.floor Math.random() * 3]
@@ -81,7 +81,7 @@ module.exports = class PosterGenerator
 
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.font = "#{fontSize}px 'Source Sans Pro'"
+      ctx.font = "bold #{fontSize}px 'Meiryo'"
       metrics = ctx.measureText posterHeadline
 
       bgWidth = metrics.width + paddingX * 2
@@ -105,4 +105,7 @@ module.exports = class PosterGenerator
       ctx.save()
       ctx.fillStyle = '#fff'
       ctx.fillText posterHeadline, bgMidX, bgMidY
+      ctx.strokeStyle = '#000'
+      ctx.lineWidth = "#{fontSize > 18 ? 2 : 1}px"
+      ctx.strokeText posterHeadline, bgMidX, bgMidY
       ctx.restore()
