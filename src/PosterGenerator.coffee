@@ -50,6 +50,14 @@ module.exports = class PosterGenerator
       key: flickrConfig.key
     }
 
+    w = 128
+    h = 64
+
+    canvas = createCanvas w * 4, h * 4
+    ctx = canvas.getContext '2d'
+
+    document.body.appendChild canvas
+
     # grab several groups
     whenPhotoListsLoaded = Promise.all (for groupId in GROUP_ID_LIST
       new Promise (resolve, reject) =>
@@ -67,21 +75,20 @@ module.exports = class PosterGenerator
       count = 0
       while count < BRAND_LIST.length
         do =>
+          x = (count % 4) * w
+          y = Math.floor(count / 4) * h
           brandText = BRAND_LIST[count]
           photo = photoList.splice(Math.floor(Math.random() * photoList.length), 1)[0]
 
           url = 'https://farm' + photo.farm + '.staticflickr.com/' + photo.server + '/' + photo.id + '_' + photo.secret + '_q.jpg'
-          whenFontsLoaded.then => @render brandText, url
+          whenFontsLoaded.then =>
+            @render ctx, x, y, w, h, brandText, url
 
         count += 1
 
       null # prevent collection
 
-  render: (brandText, url) ->
-    w = 128
-    h = 64
-    maxDim = Math.max w, h
-
+  render: (ctx, x, y, w, h, brandText, url) ->
     brandTextPosX = [0, 0.5, 1][Math.floor Math.random() * 3]
     brandTextPosY = [0.333, 0.5, 0.666][Math.floor Math.random() * 3]
 
@@ -96,13 +103,18 @@ module.exports = class PosterGenerator
     brandTextPaddingX = Math.round((0.2 + Math.random() * 0.3) * brandFontSize)
     brandTextPaddingY = Math.round((0.05 + Math.random() * 0.4) * brandFontSize)
 
-    canvas = createCanvas w, h
-    ctx = canvas.getContext '2d'
-
-    document.body.appendChild canvas
-
     ImageLoader.load(url).then (img) ->
-      ctx.drawImage img, (w - maxDim) / 2, (h - maxDim) / 2, maxDim, maxDim
+      ctx.save() # main save
+      ctx.translate x, y
+
+      ctx.beginPath()
+      ctx.rect 0, 0, w, h
+      ctx.clip()
+
+      IMG_W = 150
+      IMG_H = 150
+
+      ctx.drawImage img, w / 2 - IMG_W / 2, h / 2 - IMG_H / 2
       ctx.fillStyle = brandTintColor.cssa()
       ctx.fillRect 0, 0, w, h
 
@@ -123,6 +135,7 @@ module.exports = class PosterGenerator
 
       ctx.save()
       ctx.fillStyle = brandTextBoxColor.cssa()
+      ctx.beginPath()
       ctx.moveTo bgMidX - bgWidth * 0.5, bgMidY - bgHeight * 0.5
       ctx.lineTo bgMidX + bgWidth * 0.5, bgMidY - bgHeight * 0.5
       ctx.lineTo bgMidX + bgWidth * 0.5, bgMidY + bgHeight * 0.5
@@ -134,9 +147,10 @@ module.exports = class PosterGenerator
       ctx.save()
       ctx.fillStyle = brandTextColor.cssa()
       ctx.fillText brandText, bgMidX, bgMidY
-
       if brandTextLightness isnt 0.5 and brandFontSize > 15
         ctx.strokeStyle = new color.HSL(0, 0, 1 - brandTextLightness).rgb().alpha(0.6).cssa()
         ctx.lineWidth = "2px"
         ctx.strokeText brandText, bgMidX, bgMidY
       ctx.restore()
+
+      ctx.restore() # main restore
