@@ -78,18 +78,18 @@ module.exports = class PosterGenerator
       null # prevent collection
 
   render: (brandText, url) ->
-    w = 135
-    h = 75
+    w = 128
+    h = 64
     maxDim = Math.max w, h
 
-    brandTextPosX = [0.333, 0.5, 0.666][Math.floor Math.random() * 3]
+    brandTextPosX = [0, 0.5, 1][Math.floor Math.random() * 3]
     brandTextPosY = [0.333, 0.5, 0.666][Math.floor Math.random() * 3]
 
     brandColor = new color.HSV(Math.random(), 0.8, 0.8).rgb()
     brandTintColor = brandColor.alpha(Math.random() * 0.3)
     brandTextBoxColor = brandColor.alpha(1 - Math.random() * 0.5)
 
-    brandFontSize = 16 + Math.round(Math.random() * 5) * 2
+    brandFontSize = 10 + Math.round(Math.random() * 4) * 2
     brandTextPaddingX = Math.round((0.2 + Math.random() * 0.3) * brandFontSize)
     brandTextPaddingY = Math.round((0.05 + Math.random() * 0.4) * brandFontSize)
 
@@ -116,7 +116,7 @@ module.exports = class PosterGenerator
       bgMidX = Math.max(bgWidth * 0.5, bgMidX);
       bgMidX = Math.min(w - bgWidth * 0.5, bgMidX);
       bgMidY = Math.max(bgHeight * 0.5, bgMidY);
-      bgMidY = Math.min(w - bgHeight * 0.5, bgMidY);
+      bgMidY = Math.min(h - bgHeight * 0.5, bgMidY);
 
       ctx.save()
       ctx.fillStyle = brandTextBoxColor.cssa()
@@ -132,6 +132,6 @@ module.exports = class PosterGenerator
       ctx.fillStyle = '#fff'
       ctx.fillText brandText, bgMidX, bgMidY
       ctx.strokeStyle = '#000'
-      ctx.lineWidth = "#{brandFontSize > 22 ? 2 : 1}px"
+      ctx.lineWidth = "#{brandFontSize > 20 ? 2 : 1}px"
       ctx.strokeText brandText, bgMidX, bgMidY
       ctx.restore()
