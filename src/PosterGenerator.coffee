@@ -85,7 +85,10 @@ module.exports = class PosterGenerator
     brandTextPosX = [0, 0.5, 1][Math.floor Math.random() * 3]
     brandTextPosY = [0.333, 0.5, 0.666][Math.floor Math.random() * 3]
 
-    brandColor = new color.HSV(Math.random(), 0.8, 0.8).rgb()
+    brandColorH = Math.random()
+    brandColor = new color.HSV(brandColorH, 0.8, 0.8).rgb()
+    brandTextLightness = [0, 0.5, 1][Math.floor Math.random() * 3]
+    brandTextColor = new color.HSL(brandColorH + 10.5, 0.6, brandTextLightness).rgb()
     brandTintColor = brandColor.alpha(Math.random() * 0.3)
     brandTextBoxColor = brandColor.alpha(1 - Math.random() * 0.5)
 
@@ -129,9 +132,11 @@ module.exports = class PosterGenerator
       ctx.restore()
 
       ctx.save()
-      ctx.fillStyle = '#fff'
+      ctx.fillStyle = brandTextColor.cssa()
       ctx.fillText brandText, bgMidX, bgMidY
-      ctx.strokeStyle = '#000'
-      ctx.lineWidth = "#{brandFontSize > 20 ? 2 : 1}px"
-      ctx.strokeText brandText, bgMidX, bgMidY
+
+      if brandTextLightness isnt 0.5 and brandFontSize > 15
+        ctx.strokeStyle = new color.HSL(0, 0, 1 - brandTextLightness).rgb().alpha(0.6).cssa()
+        ctx.lineWidth = "2px"
+        ctx.strokeText brandText, bgMidX, bgMidY
       ctx.restore()
