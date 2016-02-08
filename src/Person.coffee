@@ -63,7 +63,7 @@ module.exports = class Person
     else
       # update walk target
       if vec2.squaredDistance(@_movable.position, @_walkTarget) < 0.01
-        vec2.set @_walkTarget, Math.random() * 1.5 + 0.25, (if @_movable.position[1] > 2 then 0.5 else 5.5),
+        vec2.set @_walkTarget, Math.random() * 4.5 + 0.25, (if @_movable.position[1] > 2 then 0.5 else 5.5),
         @_directionTimer = 0
 
       # regular walk behaviour
