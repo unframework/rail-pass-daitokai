@@ -16,6 +16,28 @@ GROUP_ID_LIST = [
   '97292664@N00' # https://www.flickr.com/groups/jlandscape/
 ]
 
+BRAND_LIST = [
+  '渋谷系' # shibuya-kei
+  'DEBUT!'
+  'ゲーム24' # game
+  'OH~寝湯' # neyu
+
+  '富士山' # fuji
+  '【カメラ店】' # camera
+  'YESCO'
+  'コンビニエンス' # konbi
+
+  '塚森の^^' # tororu
+  'ラーメン' # ramen
+  '美味しい' # oishii
+  'HPPY一番' # ichiban
+
+  '電車でGO!' # densha
+  'COHITEN'
+  '偉大な広告' # ad
+  'RP 大都会' # metro
+]
+
 createCanvas = (w, h) ->
   viewCanvas = document.createElement('canvas')
   viewCanvas.width = w
@@ -43,26 +65,33 @@ module.exports = class PosterGenerator
       photoList = [].concat listOfLists...
 
       count = 0
-      while count < 10
-        count += 1
+      while count < BRAND_LIST.length
         do =>
+          brandText = BRAND_LIST[count]
           photo = photoList.splice(Math.floor(Math.random() * photoList.length), 1)[0]
 
           url = 'https://farm' + photo.farm + '.staticflickr.com/' + photo.server + '/' + photo.id + '_' + photo.secret + '_q.jpg'
-          whenFontsLoaded.then => @render url
+          whenFontsLoaded.then => @render brandText, url
+
+        count += 1
 
       null # prevent collection
 
-  render: (url) ->
+  render: (brandText, url) ->
     w = 135
     h = 75
     maxDim = Math.max w, h
 
-    bgMidX = w * [0.333, 0.5, 0.666][Math.floor Math.random() * 3]
-    bgMidY = h * [0.333, 0.5, 0.666][Math.floor Math.random() * 3]
+    brandTextPosX = [0.333, 0.5, 0.666][Math.floor Math.random() * 3]
+    brandTextPosY = [0.333, 0.5, 0.666][Math.floor Math.random() * 3]
 
-    bgColor = new color.HSV(Math.random(), 0.8, 0.8).rgb()
-    tintAlpha = Math.random() * 0.3
+    brandColor = new color.HSV(Math.random(), 0.8, 0.8).rgb()
+    brandTintColor = brandColor.alpha(Math.random() * 0.3)
+    brandTextBoxColor = brandColor.alpha(1 - Math.random() * 0.5)
+
+    brandFontSize = 16 + Math.round(Math.random() * 5) * 2
+    brandTextPaddingX = Math.round((0.2 + Math.random() * 0.3) * brandFontSize)
+    brandTextPaddingY = Math.round((0.05 + Math.random() * 0.4) * brandFontSize)
 
     canvas = createCanvas w, h
     ctx = canvas.getContext '2d'
@@ -71,29 +100,26 @@ module.exports = class PosterGenerator
 
     ImageLoader.load(url).then (img) ->
       ctx.drawImage img, (w - maxDim) / 2, (h - maxDim) / 2, maxDim, maxDim
-      ctx.fillStyle = bgColor.alpha(tintAlpha).cssa()
+      ctx.fillStyle = brandTintColor.cssa()
       ctx.fillRect 0, 0, w, h
-
-      posterHeadline = '渋谷系'
-      fontSize = 14 + Math.round(Math.random() * 4) * 2
-      paddingX = Math.round((0.2 + Math.random() * 0.3) * fontSize)
-      paddingY = Math.round((0.05 + Math.random() * 0.4) * fontSize)
 
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.font = "bold #{fontSize}px 'Meiryo'"
-      metrics = ctx.measureText posterHeadline
+      ctx.font = "bold #{brandFontSize}px 'Meiryo'"
+      metrics = ctx.measureText brandText
 
-      bgWidth = metrics.width + paddingX * 2
-      bgHeight = fontSize + paddingY * 2
+      bgWidth = metrics.width + brandTextPaddingX * 2
+      bgHeight = brandFontSize + brandTextPaddingY * 2
 
+      bgMidX = w * brandTextPosX
+      bgMidY = h * brandTextPosY
       bgMidX = Math.max(bgWidth * 0.5, bgMidX);
       bgMidX = Math.min(w - bgWidth * 0.5, bgMidX);
       bgMidY = Math.max(bgHeight * 0.5, bgMidY);
       bgMidY = Math.min(w - bgHeight * 0.5, bgMidY);
 
       ctx.save()
-      ctx.fillStyle = bgColor.alpha(1 - Math.random() * 0.5).cssa()
+      ctx.fillStyle = brandTextBoxColor.cssa()
       ctx.moveTo bgMidX - bgWidth * 0.5, bgMidY - bgHeight * 0.5
       ctx.lineTo bgMidX + bgWidth * 0.5, bgMidY - bgHeight * 0.5
       ctx.lineTo bgMidX + bgWidth * 0.5, bgMidY + bgHeight * 0.5
@@ -104,8 +130,8 @@ module.exports = class PosterGenerator
 
       ctx.save()
       ctx.fillStyle = '#fff'
-      ctx.fillText posterHeadline, bgMidX, bgMidY
+      ctx.fillText brandText, bgMidX, bgMidY
       ctx.strokeStyle = '#000'
-      ctx.lineWidth = "#{fontSize > 18 ? 2 : 1}px"
-      ctx.strokeText posterHeadline, bgMidX, bgMidY
+      ctx.lineWidth = "#{brandFontSize > 22 ? 2 : 1}px"
+      ctx.strokeText brandText, bgMidX, bgMidY
       ctx.restore()
