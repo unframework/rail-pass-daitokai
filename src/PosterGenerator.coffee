@@ -56,8 +56,6 @@ module.exports = class PosterGenerator
     canvas = createCanvas w * 4, h * 4
     ctx = canvas.getContext '2d'
 
-    document.body.appendChild canvas
-
     # grab several groups
     whenPhotoListsLoaded = Promise.all (for groupId in GROUP_ID_LIST
       new Promise (resolve, reject) =>
@@ -69,11 +67,10 @@ module.exports = class PosterGenerator
     )
 
     # then pick from flattened set
-    whenPhotoListsLoaded.then (listOfLists) =>
+    whenRendered = whenPhotoListsLoaded.then (listOfLists) =>
       photoList = [].concat listOfLists...
 
-      count = 0
-      while count < BRAND_LIST.length
+      renderPromiseList = for count in [0 .. BRAND_LIST.length - 1]
         do =>
           x = (count % 4) * w
           y = Math.floor(count / 4) * h
@@ -81,14 +78,15 @@ module.exports = class PosterGenerator
           photo = photoList.splice(Math.floor(Math.random() * photoList.length), 1)[0]
 
           url = 'https://farm' + photo.farm + '.staticflickr.com/' + photo.server + '/' + photo.id + '_' + photo.secret + '_q.jpg'
-          whenFontsLoaded.then =>
-            @render ctx, x, y, w, h, brandText, url
+          ImageLoader.load(url).then (img) =>
+            whenFontsLoaded.then =>
+              @render ctx, x, y, w, h, brandText, img
 
-        count += 1
+      Promise.all renderPromiseList
 
-      null # prevent collection
+    @whenReady = whenRendered.then -> canvas
 
-  render: (ctx, x, y, w, h, brandText, url) ->
+  render: (ctx, x, y, w, h, brandText, img) ->
     brandTextPosX = [0, 0.5, 1][Math.floor Math.random() * 3]
     brandTextPosY = [0.333, 0.5, 0.666][Math.floor Math.random() * 3]
 
@@ -103,54 +101,53 @@ module.exports = class PosterGenerator
     brandTextPaddingX = Math.round((0.2 + Math.random() * 0.3) * brandFontSize)
     brandTextPaddingY = Math.round((0.05 + Math.random() * 0.4) * brandFontSize)
 
-    ImageLoader.load(url).then (img) ->
-      ctx.save() # main save
-      ctx.translate x, y
+    ctx.save() # main save
+    ctx.translate x, y
 
-      ctx.beginPath()
-      ctx.rect 0, 0, w, h
-      ctx.clip()
+    ctx.beginPath()
+    ctx.rect 0, 0, w, h
+    ctx.clip()
 
-      IMG_W = 150
-      IMG_H = 150
+    IMG_W = 150
+    IMG_H = 150
 
-      ctx.drawImage img, w / 2 - IMG_W / 2, h / 2 - IMG_H / 2
-      ctx.fillStyle = brandTintColor.cssa()
-      ctx.fillRect 0, 0, w, h
+    ctx.drawImage img, w / 2 - IMG_W / 2, h / 2 - IMG_H / 2
+    ctx.fillStyle = brandTintColor.cssa()
+    ctx.fillRect 0, 0, w, h
 
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
-      ctx.font = "bold #{brandFontSize}px 'Meiryo'"
-      metrics = ctx.measureText brandText
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.font = "bold #{brandFontSize}px 'Meiryo'"
+    metrics = ctx.measureText brandText
 
-      bgWidth = metrics.width + brandTextPaddingX * 2
-      bgHeight = brandFontSize + brandTextPaddingY * 2
+    bgWidth = metrics.width + brandTextPaddingX * 2
+    bgHeight = brandFontSize + brandTextPaddingY * 2
 
-      bgMidX = w * brandTextPosX
-      bgMidY = h * brandTextPosY
-      bgMidX = Math.max(bgWidth * 0.5, bgMidX);
-      bgMidX = Math.min(w - bgWidth * 0.5, bgMidX);
-      bgMidY = Math.max(bgHeight * 0.5, bgMidY);
-      bgMidY = Math.min(h - bgHeight * 0.5, bgMidY);
+    bgMidX = w * brandTextPosX
+    bgMidY = h * brandTextPosY
+    bgMidX = Math.max(bgWidth * 0.5, bgMidX);
+    bgMidX = Math.min(w - bgWidth * 0.5, bgMidX);
+    bgMidY = Math.max(bgHeight * 0.5, bgMidY);
+    bgMidY = Math.min(h - bgHeight * 0.5, bgMidY);
 
-      ctx.save()
-      ctx.fillStyle = brandTextBoxColor.cssa()
-      ctx.beginPath()
-      ctx.moveTo bgMidX - bgWidth * 0.5, bgMidY - bgHeight * 0.5
-      ctx.lineTo bgMidX + bgWidth * 0.5, bgMidY - bgHeight * 0.5
-      ctx.lineTo bgMidX + bgWidth * 0.5, bgMidY + bgHeight * 0.5
-      ctx.lineTo bgMidX - bgWidth * 0.5, bgMidY + bgHeight * 0.5
-      ctx.closePath()
-      ctx.fill()
-      ctx.restore()
+    ctx.save()
+    ctx.fillStyle = brandTextBoxColor.cssa()
+    ctx.beginPath()
+    ctx.moveTo bgMidX - bgWidth * 0.5, bgMidY - bgHeight * 0.5
+    ctx.lineTo bgMidX + bgWidth * 0.5, bgMidY - bgHeight * 0.5
+    ctx.lineTo bgMidX + bgWidth * 0.5, bgMidY + bgHeight * 0.5
+    ctx.lineTo bgMidX - bgWidth * 0.5, bgMidY + bgHeight * 0.5
+    ctx.closePath()
+    ctx.fill()
+    ctx.restore()
 
-      ctx.save()
-      ctx.fillStyle = brandTextColor.cssa()
-      ctx.fillText brandText, bgMidX, bgMidY
-      if brandTextLightness isnt 0.5 and brandFontSize > 15
-        ctx.strokeStyle = new color.HSL(0, 0, 1 - brandTextLightness).rgb().alpha(0.6).cssa()
-        ctx.lineWidth = "2px"
-        ctx.strokeText brandText, bgMidX, bgMidY
-      ctx.restore()
+    ctx.save()
+    ctx.fillStyle = brandTextColor.cssa()
+    ctx.fillText brandText, bgMidX, bgMidY
+    if brandTextLightness isnt 0.5 and brandFontSize > 15
+      ctx.strokeStyle = new color.HSL(0, 0, 1 - brandTextLightness).rgb().alpha(0.6).cssa()
+      ctx.lineWidth = "2px"
+      ctx.strokeText brandText, bgMidX, bgMidY
+    ctx.restore()
 
-      ctx.restore() # main restore
+    ctx.restore() # main restore
