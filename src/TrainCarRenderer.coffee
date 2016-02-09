@@ -9,7 +9,7 @@ PosterGenerator = require('./PosterGenerator.coffee')
 OBJLoader = require('./OBJLoader.coffee')
 
 flickrConfig = require('../flickr')
-posterPromise = new PosterGenerator(flickrConfig).whenReady
+posterPromise = new PosterGenerator(128, 64, flickrConfig).whenReady
 
 meshHeight = 2.5
 wallMeshPromise = new OBJLoader.loadFromData fs.readFileSync(__dirname + '/trainCarWall.obj'), 1 / meshHeight

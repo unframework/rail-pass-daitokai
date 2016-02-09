@@ -45,13 +45,10 @@ createCanvas = (w, h) ->
   viewCanvas
 
 module.exports = class PosterGenerator
-  constructor: (flickrConfig) ->
+  constructor: (w, h, flickrConfig) ->
     @_flickr = flickrClient {
       key: flickrConfig.key
     }
-
-    w = 128
-    h = 64
 
     canvas = createCanvas w * 4, h * 4
     ctx = canvas.getContext '2d'
