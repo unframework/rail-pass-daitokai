@@ -38,6 +38,12 @@ BRAND_LIST = [
   'RP 大都会' # metro
 ]
 
+getTwoPower = (num) ->
+  out = 1
+  while out < num
+    out = out * 2
+  out
+
 createCanvas = (w, h) ->
   viewCanvas = document.createElement('canvas')
   viewCanvas.width = w
@@ -50,7 +56,9 @@ module.exports = class PosterGenerator
       key: flickrConfig.key
     }
 
-    canvas = createCanvas w * 4, h * 4
+    @canvasW = getTwoPower w * 4
+    @canvasH = getTwoPower h * 4
+    canvas = createCanvas @canvasW, @canvasH
     ctx = canvas.getContext '2d'
 
     # grab several groups

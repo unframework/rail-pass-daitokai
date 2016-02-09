@@ -9,8 +9,6 @@ PosterGenerator = require('./PosterGenerator.coffee')
 OBJLoader = require('./OBJLoader.coffee')
 
 flickrConfig = require('../flickr')
-topPosterPromise = new PosterGenerator(128, 64, flickrConfig).whenReady
-sidePosterPromise = new PosterGenerator(128, 128, flickrConfig).whenReady
 
 meshHeight = 2.5
 wallMeshPromise = new OBJLoader.loadFromData fs.readFileSync(__dirname + '/trainCarWall.obj'), 1 / meshHeight
@@ -28,6 +26,7 @@ POSTER_MESH_TRIANGLE_COUNT = 2
 
 TOP_POSTER_UV_W = 128
 TOP_POSTER_UV_H = 64
+topPoster = new PosterGenerator(TOP_POSTER_UV_W, TOP_POSTER_UV_H, flickrConfig)
 
 TOP_POSTER_LIST = [
   # midway
@@ -39,8 +38,9 @@ TOP_POSTER_LIST = [
   [ vec3.fromValues(1.5, 6, 2.1), vec3.fromValues(1, 1, 0.4), 0 ]
 ]
 
-SIDE_POSTER_UV_W = 128
+SIDE_POSTER_UV_W = 80
 SIDE_POSTER_UV_H = 128
+sidePoster = new PosterGenerator(SIDE_POSTER_UV_W, SIDE_POSTER_UV_H, flickrConfig)
 
 SIDE_POSTER_LIST = [
   # left side
@@ -56,9 +56,9 @@ SIDE_POSTER_LIST = [
   [ vec3.fromValues(2.5 - 0.005, 7.05, 0.9), vec3.fromValues(0.5, 1, 0.9), -Math.PI / 2 ]
 ]
 
-generateUVBuffers = (gl, w, h) ->
-  canvasW = w * 4
-  canvasH = h * 4
+generateUVBuffers = (gl, posterGenerator, w, h) ->
+  canvasW = posterGenerator.canvasW
+  canvasH = posterGenerator.canvasH
 
   for index in [0 .. 4 * 4 - 1]
     u1 = (index % 4) * w
@@ -88,11 +88,11 @@ module.exports = class TrainCarRenderer
     @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_posterMeshBuffer
     @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array(POSTER_MESH_TRIANGLE_DATA), @_gl.STATIC_DRAW
 
-    topPosterUVCandidateList = generateUVBuffers @_gl, TOP_POSTER_UV_W, TOP_POSTER_UV_H
+    topPosterUVCandidateList = generateUVBuffers @_gl, topPoster, TOP_POSTER_UV_W, TOP_POSTER_UV_H
     @_topPosterUVBufferList = for index in [0 .. TOP_POSTER_LIST.length - 1]
       topPosterUVCandidateList.splice(Math.floor(Math.random() * topPosterUVCandidateList.length), 1)[0]
 
-    sidePosterUVCandidateList = generateUVBuffers @_gl, SIDE_POSTER_UV_W, SIDE_POSTER_UV_H
+    sidePosterUVCandidateList = generateUVBuffers @_gl, sidePoster, SIDE_POSTER_UV_W, SIDE_POSTER_UV_H
     @_sidePosterUVBufferList = for index in [0 .. SIDE_POSTER_LIST.length - 1]
       sidePosterUVCandidateList.splice(Math.floor(Math.random() * sidePosterUVCandidateList.length), 1)[0]
 
@@ -124,7 +124,7 @@ module.exports = class TrainCarRenderer
         @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_capMeshBuffer
         @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array(capMesh.triangleBuffer), @_gl.STATIC_DRAW
 
-        topPosterPromise.then (canvas) =>
+        topPoster.whenReady.then (canvas) =>
           @_topPosterTexture = @_gl.createTexture()
 
           @_gl.bindTexture(@_gl.TEXTURE_2D, @_topPosterTexture)
@@ -135,7 +135,7 @@ module.exports = class TrainCarRenderer
           @_gl.texParameteri(@_gl.TEXTURE_2D, @_gl.TEXTURE_WRAP_S, @_gl.REPEAT)
           @_gl.texParameteri(@_gl.TEXTURE_2D, @_gl.TEXTURE_WRAP_T, @_gl.REPEAT)
 
-          sidePosterPromise.then (canvas) =>
+          sidePoster.whenReady.then (canvas) =>
             @_sidePosterTexture = @_gl.createTexture()
 
             @_gl.bindTexture(@_gl.TEXTURE_2D, @_sidePosterTexture)
