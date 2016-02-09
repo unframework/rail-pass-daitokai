@@ -61,7 +61,7 @@ module.exports = class TrainCarRenderer
     @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_posterMeshBuffer
     @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array(POSTER_MESH_TRIANGLE_DATA), @_gl.STATIC_DRAW
 
-    @_posterUVBufferList = for index in [0 .. POSTER_LIST.length - 1]
+    uvBufList = for index in [0 .. 4 * 4 - 1]
       u1 = (index % 4) * POSTER_UV_W
       v1 = Math.floor(index / 4) * POSTER_UV_H
       u2 = u1 + POSTER_UV_W
@@ -79,6 +79,9 @@ module.exports = class TrainCarRenderer
       ]), @_gl.STATIC_DRAW
 
       uvBuf
+
+    @_posterUVBufferList = for index in [0 .. POSTER_LIST.length - 1]
+      uvBufList.splice(Math.floor(Math.random() * uvBufList.length), 1)[0]
 
     @_modelPosition = vec3.create()
     @_modelScale = vec3.fromValues(meshHeight, meshHeight, meshHeight)
