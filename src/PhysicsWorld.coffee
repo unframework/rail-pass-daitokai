@@ -13,7 +13,10 @@ map = [
 module.exports = class PhysicsWorld
     constructor: (@_timerStream) ->
         # sample cell map
+        @_map = Object.create(null)
         @originCell = { origin: vec2.fromValues(0, 0), center: vec2.fromValues(CELL_HALF_SIZE, CELL_HALF_SIZE) }
+
+        @_map[@originCell.origin[0] + ' ' + @originCell.origin[1]] = @originCell
 
         @_timerStream.on 'elapsed', (elapsedSeconds) => @_update elapsedSeconds
 
@@ -57,11 +60,23 @@ module.exports = class PhysicsWorld
         while cellRow.length < height
             cellRow.push cellRow[cellRow.length - 1]._up
 
+        makeCell = (c, cdx, cdy) =>
+            x = c.origin[0] + cdx
+            y = c.origin[1] + cdy
+            coords = x + ' ' + y
+
+            cell = @_map[coords] or {
+                origin: vec2.fromValues(x, y),
+                center: vec2.fromValues(c.center[0] + cdx, c.center[1] + cdy)
+            }
+
+            @_map[coords] = cell
+
         if dx > 0
             while dx > 0
                 dx -= 1
 
-                newCellRow = ({ origin: vec2.fromValues(c.origin[0] + CELL_SIZE, c.origin[1]), center: vec2.fromValues(c.center[0] + CELL_SIZE, c.center[1]) } for c in cellRow)
+                newCellRow = (makeCell(c, CELL_SIZE, 0) for c in cellRow)
 
                 for c, i in cellRow
                     if c._right then throw new Error 'cannot override cell link'
@@ -79,7 +94,7 @@ module.exports = class PhysicsWorld
             while dx < 0
                 dx += 1
 
-                newCellRow = ({ origin: vec2.fromValues(c.origin[0] - CELL_SIZE, c.origin[1]), center: vec2.fromValues(c.center[0] - CELL_SIZE, c.center[1]) } for c in cellRow)
+                newCellRow = (makeCell(c, -CELL_SIZE, 0) for c in cellRow)
 
                 for c, i in cellRow
                     if c._left then throw new Error 'cannot override cell link'
@@ -109,11 +124,23 @@ module.exports = class PhysicsWorld
         while cellRow.length < width
             cellRow.push cellRow[cellRow.length - 1]._right
 
+        makeCell = (c, cdx, cdy) =>
+            x = c.origin[0] + cdx
+            y = c.origin[1] + cdy
+            coords = x + ' ' + y
+
+            cell = @_map[coords] or {
+                origin: vec2.fromValues(x, y),
+                center: vec2.fromValues(c.center[0] + cdx, c.center[1] + cdy)
+            }
+
+            @_map[coords] = cell
+
         if dy > 0
             while dy > 0
                 dy -= 1
 
-                newCellRow = ({ origin: vec2.fromValues(c.origin[0], c.origin[1] + CELL_SIZE), center: vec2.fromValues(c.center[0], c.center[1] + CELL_SIZE) } for c in cellRow)
+                newCellRow = (makeCell(c, 0, CELL_SIZE) for c in cellRow)
 
                 for c, i in cellRow
                     c._up = newCellRow[i]
@@ -130,7 +157,7 @@ module.exports = class PhysicsWorld
             while dy < 0
                 dy += 1
 
-                newCellRow = ({ origin: vec2.fromValues(c.origin[0], c.origin[1] - CELL_SIZE), center: vec2.fromValues(c.center[0], c.center[1] - CELL_SIZE) } for c in cellRow)
+                newCellRow = (makeCell(c, 0, -CELL_SIZE) for c in cellRow)
 
                 for c, i in cellRow
                     c._down = newCellRow[i]
