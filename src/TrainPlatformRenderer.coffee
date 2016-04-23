@@ -7,32 +7,34 @@ FlatTextureShader = require('./FlatTextureShader.coffee')
 platformImageURI = 'data:application/octet-stream;base64,' + btoa(require('fs').readFileSync(__dirname + '/floor.png', 'binary'))
 platformImagePromise = ImageLoader.load platformImageURI
 
+SQUARE_COORDS = [
+  0, 0
+  1, 0
+  0, 1
+  0, 1
+  1, 0
+  1, 1
+]
+
 module.exports = class TrainPlatformRenderer
-  constructor: (@_gl) ->
+  constructor: (@_gl, @_trainPlatform) ->
     @_texShader = new FlatTextureShader @_gl
     @_color = vec4.fromValues(1, 1, 1, 1)
 
+    cellCoords = []
+    cellUV = []
+    @_trainPlatform._physicsWorld.walkAll (cell) ->
+      cellCoords.push (cell.origin[i % 2] + n * 0.5 for n, i in SQUARE_COORDS)
+      cellUV.push (0.5 * (cell.origin[i % 2] + n * 0.5) for n, i in SQUARE_COORDS)
+    @_cellCount = cellCoords.length
+
     @_platformBuffer = @_gl.createBuffer()
     @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_platformBuffer
-    @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array([
-      0, 0
-      16, 0
-      0, 16
-      0, 16
-      16, 0
-      16, 16
-    ]), @_gl.STATIC_DRAW
+    @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array([].concat cellCoords...), @_gl.STATIC_DRAW
 
     @_platformUVBuffer = @_gl.createBuffer()
     @_gl.bindBuffer @_gl.ARRAY_BUFFER, @_platformUVBuffer
-    @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array([
-      0, 0
-      2, 0
-      0, 2
-      0, 2
-      2, 0
-      2, 2
-    ]), @_gl.STATIC_DRAW
+    @_gl.bufferData @_gl.ARRAY_BUFFER, new Float32Array([].concat cellUV...), @_gl.STATIC_DRAW
 
     @_modelMatrix = mat4.create()
 
@@ -69,5 +71,5 @@ module.exports = class TrainPlatformRenderer
     @_gl.uniform4fv @_texShader.colorLocation, @_color
     @_gl.uniformMatrix4fv @_texShader.modelLocation, false, @_modelMatrix
 
-    @_gl.drawArrays @_gl.TRIANGLES, 0, 6
+    @_gl.drawArrays @_gl.TRIANGLES, 0, @_cellCount * 6
 

@@ -36,7 +36,7 @@ module.exports = class View
         @_gl.enable @_gl.DEPTH_TEST
         @_gl.depthFunc @_gl.LEQUAL
 
-        @_platformRenderer = new TrainPlatformRenderer @_gl
+        @_platformRenderer = new TrainPlatformRenderer @_gl, @_trainPlatform
         @_trainRenderer = new TrainRenderer @_gl
         @_personRenderer = new PersonRenderer @_gl
 

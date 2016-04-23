@@ -20,6 +20,29 @@ module.exports = class PhysicsWorld
         @_timeAccumulator = 0
         @_movables = []
 
+    walkAll: (eachCellCallback) ->
+        stack = [ @originCell ]
+        usedMap = Object.create(null)
+
+        i = 0
+
+        while stack.length > 0
+            cell = stack.pop()
+
+            if usedMap[cell.origin[0] + ' ' + cell.origin[1]]
+                continue
+
+            usedMap[cell.origin[0] + ' ' + cell.origin[1]] = true
+
+            for nextCell in [ cell._left, cell._up, cell._right, cell._down ] when nextCell
+                stack.push nextCell
+
+            eachCellCallback cell
+
+            i += 1
+            if i > 1000
+                throw new Error('too many cells!')
+
     extrudeLR: (cell, height, dx) ->
         if height < 0
             height = -height
