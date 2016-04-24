@@ -8,6 +8,7 @@ mat4 = require('gl-matrix').mat4
 FlatTexturePersonShader = require('./FlatTexturePersonShader.coffee')
 OBJLoader = require('./OBJLoader.coffee')
 ImageLoader = require('./ImageLoader.coffee')
+PathRenderer = require('./PathRenderer.coffee')
 
 textureImageURI = 'data:application/octet-stream;base64,' + btoa(require('fs').readFileSync(__dirname + '/person.png', 'binary'))
 textureImagePromise = ImageLoader.load textureImageURI
@@ -56,6 +57,8 @@ module.exports = class PersonRenderer
         @_gl.texParameteri(@_gl.TEXTURE_2D, @_gl.TEXTURE_MIN_FILTER, @_gl.NEAREST)
         @_gl.texParameteri(@_gl.TEXTURE_2D, @_gl.TEXTURE_WRAP_S, @_gl.REPEAT)
         @_gl.texParameteri(@_gl.TEXTURE_2D, @_gl.TEXTURE_WRAP_T, @_gl.REPEAT)
+
+    @_pathRenderer = new PathRenderer @_gl
 
   draw: (cameraMatrix, person) ->
     if !@_meshBuffer or !@_meshTexture
@@ -107,3 +110,10 @@ module.exports = class PersonRenderer
     @_gl.uniformMatrix4fv @_flatShader.modelLocation, false, @_modelMatrix
 
     @_gl.drawArrays @_gl.TRIANGLES, 0, @_meshTriangleCount * 3
+
+    if person._walkPath.length > 0
+      @_pathRenderer.draw cameraMatrix, (pointCb) =>
+        pointCb person._movable.position[0], person._movable.position[1]
+        pointCb person._walkTarget[0], person._walkTarget[1]
+        for item in person._walkPath
+          pointCb item.center[0], item.center[1]
