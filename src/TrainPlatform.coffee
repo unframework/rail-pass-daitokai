@@ -6,4 +6,5 @@ module.exports = class TrainPlatform
 
     cell = @_physicsWorld.extrudeLR cell, -2, 4
     cell = @_physicsWorld.extrudeUD cell._down, -2, -4
+    @_physicsWorld.extrudeUD cell, -2, -8
     @_physicsWorld.extrudeLR cell._left, 2, -3

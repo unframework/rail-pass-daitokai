@@ -25,7 +25,7 @@ var view = new View(timer.stream, personList, train, platform);
 personList.push(new Person(timer.stream, input, world, world.originCell, personList))
 
 var cell = world.originCell._right;
-while(personList.length < 15) {
+while(personList.length < 2) {
     personList.push(new Person(timer.stream, null, world, cell, personList));
     cell = cell._right;
 }

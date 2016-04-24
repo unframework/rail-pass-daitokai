@@ -1,6 +1,7 @@
 vec2 = require('gl-matrix').vec2
 vec3 = require('gl-matrix').vec3
 color = require('onecolor')
+aStar = require('a-star')
 
 angleDiff = (a1, a2) ->
   d = a1 - a2
@@ -10,6 +11,27 @@ angleDiff = (a1, a2) ->
     d += 2 * Math.PI
 
   d
+
+findPath = (cell, targetX, targetY) ->
+  tx = Math.round((targetX - 0.25) * 2) / 2 + 0.25
+  ty = Math.round((targetY - 0.25) * 2) / 2 + 0.25
+  out = aStar(
+    start: cell
+    isEnd: (c) ->
+      c.center[0] is tx and c.center[1] is ty
+    neighbor: (c) ->
+      n for n in [ c._left, c._right, c._up, c._down ] when n
+    distance: (a, b) ->
+      Math.hypot b.center[0] - (a.center[0]), b.center[1] - (a.center[1])
+    heuristic: (c) ->
+      Math.hypot tx - (c.center[0]), ty - (c.center[1])
+    hash: (c) ->
+      c.origin[0] + ' ' + c.origin[1]
+    timeout: 500
+  )
+
+  out.path
+
 
 module.exports = class Person
   constructor: (@_timerStream, @_input, @_physicsWorld, cell, @_personList) ->
@@ -35,6 +57,7 @@ module.exports = class Person
 
     @_directionTimer = 0
     @_walkTarget = vec2.clone @_movable.position
+    @_walkPath = []
 
     @_timerStream.on 'elapsed', (elapsedSeconds) => @_update elapsedSeconds
 
@@ -61,16 +84,20 @@ module.exports = class Person
       if @_movable.walk[0] isnt 0 or @_movable.walk[1] isnt 0
         @orientation = Math.atan2 @_movable.walk[1], @_movable.walk[0]
     else
-      # update walk target
-      if vec2.squaredDistance(@_movable.position, @_walkTarget) < 0.01
-        vec2.set @_walkTarget, Math.random() * 4.5 + 0.25, (if @_movable.position[1] > 2 then 0.5 else 5.5),
-        @_directionTimer = 0
-
       # regular walk behaviour
       @_directionTimer -= elapsedSeconds
 
       if @_directionTimer <= 0
         @_directionTimer += 0.2 + Math.random() * 0.1
+
+        # update walk target
+        if vec2.squaredDistance(@_movable.position, @_walkTarget) < 0.04
+          if @_walkPath.length < 1
+            @_walkPath = findPath @_movable._cell, Math.random() * 10 + 0.25, Math.random() * 10 + 0.25
+            console.log(@_walkPath[@_walkPath.length - 1].center)
+
+          cell = @_walkPath.shift()
+          vec2.set @_walkTarget, cell.center[0], cell.center[1]
 
         walkDir = Math.atan2(@_walkTarget[1] - @_movable.position[1], @_walkTarget[0] - @_movable.position[0])
 
