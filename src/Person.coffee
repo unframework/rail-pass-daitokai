@@ -20,7 +20,16 @@ findPath = (cell, targetX, targetY) ->
     isEnd: (c) ->
       c.center[0] is tx and c.center[1] is ty
     neighbor: (c) ->
-      n for n in [ c._left, c._right, c._up, c._down ] when n
+      n for n in [
+        c._left
+        c._left._up if c._left and c._up
+        c._right
+        c._right._down if c._right and c._down
+        c._up
+        c._up._right if c._up and c._right
+        c._down
+        c._down._left if c._down and c._left
+      ] when n
     distance: (a, b) ->
       Math.hypot b.center[0] - (a.center[0]), b.center[1] - (a.center[1])
     heuristic: (c) ->
@@ -30,8 +39,28 @@ findPath = (cell, targetX, targetY) ->
     timeout: 500
   )
 
-  out.path
+  shortPath = [ out.path.shift() ]
+  na = Math.atan2(
+    out.path[0].center[1] - shortPath[0].center[1],
+    out.path[0].center[0] - shortPath[0].center[0]
+  )
 
+  for c, ci in out.path
+    ca = Math.atan2(
+      c.center[1] - shortPath[shortPath.length - 1].center[1],
+      c.center[0] - shortPath[shortPath.length - 1].center[0]
+    )
+
+    if Math.abs(ca - na) > 0.01
+      shortPath.push out.path[ci - 1]
+      na = Math.atan2(
+        c.center[1] - shortPath[shortPath.length - 1].center[1],
+        c.center[0] - shortPath[shortPath.length - 1].center[0]
+      )
+
+  shortPath.push out.path[out.path.length - 1]
+
+  shortPath
 
 module.exports = class Person
   constructor: (@_timerStream, @_input, @_physicsWorld, cell, @_personList) ->
@@ -94,7 +123,7 @@ module.exports = class Person
         if vec2.squaredDistance(@_movable.position, @_walkTarget) < 0.04
           if @_walkPath.length < 1
             @_walkPath = findPath @_movable._cell, Math.random() * 10 + 0.25, Math.random() * 10 + 0.25
-            console.log(@_walkPath[@_walkPath.length - 1].center)
+            @_walkPath.shift() if @_walkPath.length > 1 # no need to target starting point
 
           cell = @_walkPath.shift()
           vec2.set @_walkTarget, cell.center[0], cell.center[1]

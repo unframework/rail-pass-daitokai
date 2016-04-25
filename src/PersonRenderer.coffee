@@ -111,7 +111,7 @@ module.exports = class PersonRenderer
 
     @_gl.drawArrays @_gl.TRIANGLES, 0, @_meshTriangleCount * 3
 
-    if person._walkPath.length > 0
+    if !person._input
       @_pathRenderer.draw cameraMatrix, (pointCb) =>
         pointCb person._movable.position[0], person._movable.position[1]
         pointCb person._walkTarget[0], person._walkTarget[1]
