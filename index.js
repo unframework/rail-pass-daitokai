@@ -22,11 +22,11 @@ var train = new Train(timer.stream, world);
 var personList = [];
 var view = new View(timer.stream, personList, train, platform);
 
-personList.push(new Person(timer.stream, input, world, world.originCell, personList))
+personList.push(new Person(timer.stream, input, world, world.originCell))
 
 var cell = world.originCell._right;
-while(personList.length < 2) {
-    personList.push(new Person(timer.stream, null, world, cell, personList));
+while(personList.length < 3) {
+    personList.push(new Person(timer.stream, null, world, cell));
     cell = cell._right;
 }
 

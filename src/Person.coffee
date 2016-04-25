@@ -63,8 +63,8 @@ findPath = (cell, targetX, targetY) ->
   shortPath
 
 module.exports = class Person
-  constructor: (@_timerStream, @_input, @_physicsWorld, cell, @_personList) ->
-    @_movable = @_physicsWorld.createMovable cell
+  constructor: (@_timerStream, @_input, @_physicsWorld, cell) ->
+    @_movable = @_physicsWorld.createMovable cell, this
 
     @height = 1.50 + Math.random() * 0.25
     @color = new color.HSL(Math.random(), 0.8, 0.8).rgb()
@@ -141,13 +141,14 @@ module.exports = class Person
         goLeft = false
         goRight = false
 
-        for otherPerson in @_personList when otherPerson isnt this
-          if vec2.squaredDistance(@_tmpLookaheadPos, otherPerson._movable.position) > 0.5 * 0.5 # @todo person size
+        for otherMovable in @_physicsWorld._movables when otherMovable isnt @_movable
+          if vec2.squaredDistance(@_tmpLookaheadPos, otherMovable.position) > 0.5 * 0.5 # @todo person size
             continue
 
-          vec2.subtract @_tmpOtherDiff, otherPerson._movable.position, @_movable.position
+          vec2.subtract @_tmpOtherDiff, otherMovable.position, @_movable.position
           crossPos = vec2.dot @_tmpOtherDiff, @_tmpWalkCrossVector
 
+          otherPerson = otherMovable.person
           if Math.abs(angleDiff otherPerson.orientation, walkDir) > 0.6
             goSlow = true
 

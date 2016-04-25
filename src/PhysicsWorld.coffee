@@ -179,8 +179,9 @@ module.exports = class PhysicsWorld
             @_timeAccumulator -= TIME_STEP
             @_performTimeStep()
 
-    createMovable: (cell) ->
+    createMovable: (cell, person) ->
         m = {
+            person: person
             position: vec2.fromValues cell.center[0], cell.center[1]
             walk: vec2.create()
             _nposition: vec2.fromValues cell.center[0], cell.center[1]
