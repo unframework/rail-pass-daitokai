@@ -62,6 +62,18 @@ findPath = (cell, targetX, targetY) ->
 
   shortPath
 
+class Wanderer
+  constructor: (@_physicsWorld, @_movable) ->
+    @_walkPath = []
+
+  walkTo: (walkTarget) ->
+    if @_walkPath.length < 1
+      @_walkPath = findPath @_movable._cell, Math.random() * 10 + 0.25, Math.random() * 10 + 0.25
+      @_walkPath.shift() if @_walkPath.length > 1 # no need to target starting point
+
+    cell = @_walkPath.shift()
+    vec2.set walkTarget, cell.center[0], cell.center[1]
+
 module.exports = class Person
   constructor: (@_timerStream, @_input, @_physicsWorld, cell) ->
     @_movable = @_physicsWorld.createMovable cell, this
@@ -86,7 +98,7 @@ module.exports = class Person
 
     @_directionTimer = 0
     @_walkTarget = vec2.clone @_movable.position
-    @_walkPath = []
+    @_pathing = unless @_input then new Wanderer @_physicsWorld, @_movable
 
     @_timerStream.on 'elapsed', (elapsedSeconds) => @_update elapsedSeconds
 
@@ -121,12 +133,7 @@ module.exports = class Person
 
         # update walk target
         if vec2.squaredDistance(@_movable.position, @_walkTarget) < 0.04
-          if @_walkPath.length < 1
-            @_walkPath = findPath @_movable._cell, Math.random() * 10 + 0.25, Math.random() * 10 + 0.25
-            @_walkPath.shift() if @_walkPath.length > 1 # no need to target starting point
-
-          cell = @_walkPath.shift()
-          vec2.set @_walkTarget, cell.center[0], cell.center[1]
+          @_pathing.walkTo @_walkTarget
 
         walkDir = Math.atan2(@_walkTarget[1] - @_movable.position[1], @_walkTarget[0] - @_movable.position[0])
 
