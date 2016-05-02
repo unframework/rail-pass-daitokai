@@ -64,7 +64,7 @@ class Wanderer
     @_stuckTimer -= elapsedSeconds
 
     if @_stuckTimer < 0
-      @_stuckTimer = @_STUCK_TIMEOUT
+      @_stuckTimer = @_STUCK_TIMEOUT + Math.random() # randomize in case re-stuck against someone
 
       console.log 'unsticking'
       nextCell = @_walkPath[0]
