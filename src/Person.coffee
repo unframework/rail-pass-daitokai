@@ -44,9 +44,11 @@ findPath = (cell, targetX, targetY) ->
 class Wanderer
   constructor: (@_physicsWorld, @_movable) ->
     @_walkPath = [ @_movable._cell ]
+    @_stuckTimer = 0
 
   walkTo: (walkTarget) ->
     if vec2.squaredDistance(@_movable.position, @_walkPath[0].center) < 0.5 * 0.5
+      @_stuckTimer = 2
       @_walkPath.shift()
 
     if @_walkPath.length < 1
@@ -55,6 +57,17 @@ class Wanderer
 
     cell = @_walkPath[0]
     vec2.set walkTarget, cell.center[0], cell.center[1]
+
+  update: (elapsedSeconds) ->
+    @_stuckTimer -= elapsedSeconds
+
+    if @_stuckTimer < 0
+      @_stuckTimer = 2
+
+      console.log 'unsticking'
+      targetCell = @_walkPath[@_walkPath.length - 1]
+      @_walkPath = findPath @_movable._cell, targetCell.center[0], targetCell.center[1]
+      @_walkPath.shift() if @_walkPath.length > 1 # no need to target starting point
 
 module.exports = class Person
   constructor: (@_timerStream, @_input, @_physicsWorld, cell) ->
@@ -108,6 +121,7 @@ module.exports = class Person
         @orientation = Math.atan2 @_movable.walk[1], @_movable.walk[0]
     else
       # regular walk behaviour
+      @_pathing.update elapsedSeconds
       @_directionTimer -= elapsedSeconds
 
       if @_directionTimer <= 0
