@@ -39,28 +39,7 @@ findPath = (cell, targetX, targetY) ->
     timeout: 500
   )
 
-  shortPath = [ out.path.shift() ]
-  na = Math.atan2(
-    out.path[0].center[1] - shortPath[0].center[1],
-    out.path[0].center[0] - shortPath[0].center[0]
-  )
-
-  for c, ci in out.path
-    ca = Math.atan2(
-      c.center[1] - shortPath[shortPath.length - 1].center[1],
-      c.center[0] - shortPath[shortPath.length - 1].center[0]
-    )
-
-    if Math.abs(ca - na) > 0.01
-      shortPath.push out.path[ci - 1]
-      na = Math.atan2(
-        c.center[1] - shortPath[shortPath.length - 1].center[1],
-        c.center[0] - shortPath[shortPath.length - 1].center[0]
-      )
-
-  shortPath.push out.path[out.path.length - 1]
-
-  shortPath
+  out.path
 
 class Wanderer
   constructor: (@_physicsWorld, @_movable) ->
@@ -132,7 +111,7 @@ module.exports = class Person
         @_directionTimer += 0.2 + Math.random() * 0.1
 
         # update walk target
-        if vec2.squaredDistance(@_movable.position, @_walkTarget) < 0.04
+        if vec2.squaredDistance(@_movable.position, @_walkTarget) < 0.5 * 0.5
           @_pathing.walkTo @_walkTarget
 
         walkDir = Math.atan2(@_walkTarget[1] - @_movable.position[1], @_walkTarget[0] - @_movable.position[0])
