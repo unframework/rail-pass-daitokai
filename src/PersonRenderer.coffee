@@ -84,7 +84,7 @@ module.exports = class PersonRenderer
 
     mat4.identity(@_modelMatrix)
     mat4.translate(@_modelMatrix, @_modelMatrix, @_modelPosition)
-    mat4.rotate(@_modelMatrix, @_modelMatrix, person.orientation, @_up)
+    mat4.rotate(@_modelMatrix, @_modelMatrix, Math.atan2(person.bodyFocusTarget[1], person.bodyFocusTarget[0]), @_up)
     mat4.scale(@_modelMatrix, @_modelMatrix, @_modelScale)
 
     mat2.identity(@_swayRotation)

@@ -81,6 +81,7 @@ module.exports = class Person
     @color2 = @color.hue(0.08, true).lightness(0.7)
 
     @orientation = 0
+    @bodyFocusTarget = vec2.fromValues(1, 0)
 
     @lastKnownPosition = vec2.create()
     @walkCycle = 0
@@ -103,6 +104,10 @@ module.exports = class Person
   _update: (elapsedSeconds) ->
     @walkCycle = (@walkCycle + vec2.distance(@lastKnownPosition, @_movable.position) * 2) % 1
     vec2.copy @lastKnownPosition, @_movable.position
+
+    # rotate body gradually towards orientation
+    @bodyFocusTarget[0] += (Math.cos(@orientation) - @bodyFocusTarget[0]) * 10 * elapsedSeconds
+    @bodyFocusTarget[1] += (Math.sin(@orientation) - @bodyFocusTarget[1]) * 10 * elapsedSeconds
 
     @_processRiderPhysics(elapsedSeconds)
 
