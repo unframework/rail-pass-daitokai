@@ -12,7 +12,7 @@ angleDiff = (a1, a2) ->
 
   d
 
-findPath = (cell, targetX, targetY) ->
+findPath = (cell, targetX, targetY, avoidCell) ->
   tx = Math.round((targetX - 0.25) * 2) / 2 + 0.25
   ty = Math.round((targetY - 0.25) * 2) / 2 + 0.25
   out = aStar(
@@ -29,7 +29,7 @@ findPath = (cell, targetX, targetY) ->
         c._up._right if c._up and c._right
         c._down
         c._down._left if c._down and c._left
-      ] when n
+      ] when n and n isnt avoidCell
     distance: (a, b) ->
       Math.hypot b.center[0] - (a.center[0]), b.center[1] - (a.center[1])
     heuristic: (c) ->
@@ -42,13 +42,15 @@ findPath = (cell, targetX, targetY) ->
   out.path
 
 class Wanderer
+  _STUCK_TIMEOUT: 1.5
+
   constructor: (@_physicsWorld, @_movable) ->
     @_walkPath = [ @_movable._cell ]
     @_stuckTimer = 0
 
   walkTo: (walkTarget) ->
     if vec2.squaredDistance(@_movable.position, @_walkPath[0].center) < 0.5 * 0.5
-      @_stuckTimer = 2
+      @_stuckTimer = @_STUCK_TIMEOUT
       @_walkPath.shift()
 
     if @_walkPath.length < 1
@@ -62,11 +64,12 @@ class Wanderer
     @_stuckTimer -= elapsedSeconds
 
     if @_stuckTimer < 0
-      @_stuckTimer = 2
+      @_stuckTimer = @_STUCK_TIMEOUT
 
       console.log 'unsticking'
+      nextCell = @_walkPath[0]
       targetCell = @_walkPath[@_walkPath.length - 1]
-      @_walkPath = findPath @_movable._cell, targetCell.center[0], targetCell.center[1]
+      @_walkPath = findPath @_movable._cell, targetCell.center[0], targetCell.center[1], nextCell
       @_walkPath.shift() if @_walkPath.length > 1 # no need to target starting point
 
 module.exports = class Person
