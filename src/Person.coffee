@@ -41,6 +41,7 @@ findPath = (cell, targetX, targetY, avoidCell) ->
 
   out.path
 
+<<<<<<< Updated upstream
 class Wanderer
   _STUCK_TIMEOUT: 1.5
 
@@ -71,6 +72,30 @@ class Wanderer
       targetCell = @_walkPath[@_walkPath.length - 1]
       @_walkPath = findPath @_movable._cell, targetCell.center[0], targetCell.center[1], nextCell
       @_walkPath.shift() if @_walkPath.length > 1 # no need to target starting point
+=======
+  # shortPath = [ out.path.shift() ]
+  # na = Math.atan2(
+  #   out.path[0].center[1] - shortPath[0].center[1],
+  #   out.path[0].center[0] - shortPath[0].center[0]
+  # )
+
+  # for c, ci in out.path
+  #   ca = Math.atan2(
+  #     c.center[1] - shortPath[shortPath.length - 1].center[1],
+  #     c.center[0] - shortPath[shortPath.length - 1].center[0]
+  #   )
+
+  #   if Math.abs(ca - na) > 0.01
+  #     shortPath.push out.path[ci - 1]
+  #     na = Math.atan2(
+  #       c.center[1] - shortPath[shortPath.length - 1].center[1],
+  #       c.center[0] - shortPath[shortPath.length - 1].center[0]
+  #     )
+
+  # shortPath.push out.path[out.path.length - 1]
+
+  # shortPath
+>>>>>>> Stashed changes
 
 module.exports = class Person
   constructor: (@_timerStream, @_input, @_physicsWorld, cell) ->
@@ -97,7 +122,12 @@ module.exports = class Person
 
     @_directionTimer = 0
     @_walkTarget = vec2.clone @_movable.position
+<<<<<<< Updated upstream
     @_pathing = unless @_input then new Wanderer @_physicsWorld, @_movable
+=======
+    @_walkPath = []
+    @_walkPathStaleTimer = 0
+>>>>>>> Stashed changes
 
     @_timerStream.on 'elapsed', (elapsedSeconds) => @_update elapsedSeconds
 
@@ -136,7 +166,27 @@ module.exports = class Person
         @_directionTimer += 0.2 + Math.random() * 0.1
 
         # update walk target
+<<<<<<< Updated upstream
         @_pathing.walkTo @_walkTarget
+=======
+        if vec2.squaredDistance(@_movable.position, @_walkTarget) < 0.04
+          if @_walkPath.length < 1
+            @_walkPath = findPath @_movable._cell, Math.random() * 10 + 0.25, Math.random() * 10 + 0.25
+            @_walkPath.shift() if @_walkPath.length > 1 # no need to target starting point
+            @_walkPathStaleTimer = 0
+
+          cell = @_walkPath.shift()
+          vec2.set @_walkTarget, cell.center[0], cell.center[1]
+>>>>>>> Stashed changes
+
+        if @_walkPathStaleTimer > 0
+          @_walkPathStaleTimer -= elapsedSeconds
+
+          if @_walkPathStaleTimer <= 0
+            targetCell = @_walkPath[@_walkPath.length - 1]
+            @_walkPath = findPath @_movable._cell, targetCell.center[0], targetCell.center[1]
+            @_walkPath.shift() if @_walkPath.length > 1 # no need to target starting point
+            @_walkPathStaleTimer = 0
 
         walkDir = Math.atan2(@_walkTarget[1] - @_movable.position[1], @_walkTarget[0] - @_movable.position[0])
 
@@ -172,8 +222,10 @@ module.exports = class Person
           walkSpeed = -0.03
         else if goLeft
           walkDir += (if goSlow then 0.75 else 0.3)
+          @_walkPathStaleTimer = 0.1 unless @_walkPathStaleTimer > 0 # for next time
         else if goRight
           walkDir -= (if goSlow then 0.75 else 0.3)
+          @_walkPathStaleTimer = 0.1 unless @_walkPathStaleTimer > 0 # for next time
 
         @orientation = walkDir
         vec2.set @_movable.walk, Math.cos(walkDir) * walkSpeed, Math.sin(walkDir) * walkSpeed
